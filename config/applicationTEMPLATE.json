@@ -4,9 +4,9 @@
     "port": 80
   },
   "moves": {
-    "clientID": "m5_B_IcC_WvQInyt48MvL146y9nUagz8",
-    "clientSecret": "aso1f4e86_d16x11g0kR1Oo_06JGiPKaIpS45A36kt4v1Zn8SU1mxFT3W37pe6sX",
-    "redirectURI": "http://local.reubn.tk/auth/",
+    "clientID": "*!CHANGE THIS!*",
+    "clientSecret": "*!CHANGE THIS!*",
+    "redirectURI": "*!CHANGE THIS!*",
     "activityColours": {
       "aerobics": "bc4fff",
       "badminton": "11d1cb",
