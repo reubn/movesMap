@@ -1,0 +1,32 @@
+{
+  "name": "movesMap",
+  "version": "0.0.1",
+  "description": "Map of Everywhere a Moves User has been.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "moves",
+    "map",
+    "google",
+    "tracking",
+    "life",
+    "api",
+    "reubn",
+    "reubnn",
+    "path",
+    "quantified",
+    "self"
+  ],
+  "author": "Reuben Eggar",
+  "license": "MIT",
+  "dependencies": {
+    "mime": "^1.2.11",
+    "moment": "^2.8.4",
+    "randomcolor": "^0.1.1"
+  },
+  "devDependencies": {
+    "colors": "^1.0.3"
+  }
+}
