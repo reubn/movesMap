@@ -3,6 +3,7 @@ require('longjohn');
 var fs = require("fs");
 var http = require("http");
 var path = require('path');
+var url = require('url');
 var moves = require('./moves-api');
 var cp = require('child_process');
 var mime = require('mime');
@@ -68,10 +69,15 @@ function doAuth(config) {
 
 function startServer(config) {
   http.createServer(function(req, res) {
+    console.info("\/\/\/\/\/\/\/\/\/\/\/" + colors.green("START") + "\/\/\/\/\/\/\/\/\/\/\/\/\/");
     var params = req.url.replace(/\?[^\/]+(\/?)/g, "$1").split("/");
-    var query = require('url').parse(req.url, true).query;
+    var query = url.parse(req.url, true).query;
+
+    console.log(JSON.stringify(params));
+    console.log(JSON.stringify(query));
 
     if (params[1] == "auth") {
+      console.info(colors.blue("Auth Flow"));
       moves.token(query.code, function(error, response, body) {
         var accessToken = JSON.parse(body);
         if (accessToken.error !== null) {
@@ -95,6 +101,7 @@ function startServer(config) {
         res.end(JSON.stringify(accessToken));
       });
     } else if (params[1] == "login") {
+      console.info(colors.blue("Login Flow"));
       res.writeHead(302, {
         'Location': moves.authorize({
           scope: ['activity', 'location'], //can contain either activity, location or both
@@ -104,6 +111,7 @@ function startServer(config) {
       res.end();
 
     } else if (params[1] == "update") {
+      console.info(colors.blue("Update Flow"));
       res.writeHead(200, {});
       var updaterSpawn = cp.fork('./update.js');
       updaterSpawn.send({
@@ -116,10 +124,67 @@ function startServer(config) {
         res.end("Updated");
         updaterSpawn.disconnect();
       });
+    } else if (params[0] === "") {
+      var uri = url.parse(req.url).pathname;
+      var filename = path.join(process.cwd(), (params[1] != "config" && params[1] != "data") ? ("front") : (""), unescape(uri));
+      var stats;
+
+      function serveFile(filename) {
+        console.info(colors.blue("Serving Static File From: " + filename));
+        var mimeType = mime.lookup(filename);
+        res.writeHead(200, {
+          'Content-Type': mimeType
+        });
+
+        var fileStream = fs.createReadStream(filename);
+        fileStream.pipe(res);
+      }
+
+      try {
+        stats = fs.lstatSync(filename); // throws if path doesn't exist
+      } catch (e) {
+        res.writeHead(404, {
+          'Content-Type': 'text/plain'
+        });
+        res.write('404 Not Found\n');
+        res.end();
+        return;
+      }
+
+      if (stats.isDirectory()) {
+        filename = path.join(filename, "/index.html");
+        try {
+          stats = fs.lstatSync(filename); // throws if path doesn't exist
+        } catch (e) {
+          res.writeHead(404, {
+            'Content-Type': 'text/plain'
+          });
+          res.write('404 Not Found\n');
+          res.end();
+          return;
+        }
+
+      }
+
+      if (stats.isFile()) {
+        // path exists, is a file
+        serveFile(filename);
+      } else {
+        // Symbolic link, other?
+        // TODO: follow symlinks?  security?
+        res.writeHead(500, {
+          'Content-Type': 'text/plain'
+        });
+        res.write('500 Internal server error\n');
+        res.end();
+      }
+
     } else {
-      res.writeHead(200, {});
-      res.end("HAPROXRESPONCEs");
+      console.info(colors.blue("Request Not Handled"));
+      res.writeHead(500, {});
+      res.end("Hmmmm");
     }
+    console.info("\/\/\/\/\/\/\/\/\/\/\/\/" + colors.red("END") + "\/\/\/\/\/\/\/\/\/\/\/\/\/\/");
   }).listen(config.app.port, config.app.ip);
   console.info(colors.blue("Server Started. Port: " + colors.magenta(config.app.port) + " IP: " + colors.magenta(config.app.ip)));
 }
