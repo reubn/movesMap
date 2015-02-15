@@ -276,24 +276,22 @@ var movesMap = {
         chart.other.bounds = new google.maps.LatLngBounds();
         for (var i = 0; i < chart.data.chart.paths.length; i++) {
           if (chart.data.chart.paths[i] !== null) {
-            chart.data.processedPaths[i] = new google.maps.Polyline({
+            chart.data.processedPaths[i] = new google.maps.Polyline(_.assign(chart.data.chart.paths[i], {
               path: chart.data.chart.paths[i].points.map(function(p) {
                 var l = new google.maps.LatLng(p.lat, p.lon);
                 chart.other.bounds.extend(l);
                 return l;
               }),
               geodesic: true,
-              strokeColor: chart.data.chart.paths[i].strokeColor,
-              type: chart.data.chart.paths[i].type,
               strokeOpacity: 0.4,
               strokeWeight: 2.5,
               startTime: moment(chart.data.chart.paths[i].points[0].time, "YYYYMMDDThhmmss+ZZ"),
               endTime: moment(chart.data.chart.paths[i].points[chart.data.chart.paths[i].points.length - 1].time, "YYYYMMDDThhmmss+ZZ")
-            });
+            }));
 
             //Populate Min & Max Dates
-            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].startTime.startOf("day").valueOf());
-            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].endTime.endOf("day").valueOf());
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].startTime.clone().startOf("day").valueOf());
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].endTime.clone().endOf("day").valueOf());
 
             //Populate Key
             if ([].filter.call(chart.other.key.childNodes, function(node) {
@@ -318,13 +316,6 @@ var movesMap = {
                 if (this.on === true) {
                   this.className = this.className.replace(/on/g, "off");
 
-                  // chart.data.processedPaths.map(function (a) {
-                  //     //console.log(a.type + " " + thisOne.type);
-                  //     if (a.type == thisOne.type) {
-                  //         a.setMap(null);
-                  //     }
-                  //
-                  // });
                   chart.other.key.typeMask.splice(chart.other.key.typeMask.indexOf(thisOne.type), 1);
                   chart.other.dataFilter.remove('type');
                   chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
@@ -341,7 +332,7 @@ var movesMap = {
 
                   chart.other.key.typeMask.push(thisOne.type);
                   chart.other.dataFilter.remove('type');
-                  //chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
+                  chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
                   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                   chart.data.processedPaths.forEach(function(p) {
                     p.setMap(null);
@@ -368,7 +359,7 @@ var movesMap = {
               });
               infoWindow.open(chart.graph);
               var thisOne = this;
-              chart.other.dataFilter.add('Q.id', '==', thisOne.Q.id);
+              chart.other.dataFilter.add('uuid', '==', thisOne.uuid);
               chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
               chart.data.processedPaths.forEach(function(p) {
                 p.setMap(null);
@@ -378,7 +369,7 @@ var movesMap = {
               });
 
               google.maps.event.addListener(infoWindow, 'closeclick', function() {
-                chart.other.dataFilter.remove('Q.id');
+                chart.other.dataFilter.remove('uuid');
                 chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                 chart.data.processedPaths.forEach(function(p) {
                   p.setMap(null);

@@ -2,6 +2,7 @@
 var moves = require('./moves-api');
 var moment = require('moment');
 var fs = require("fs");
+var uuid = require('node-uuid');
 var colors = require('colors/safe');
 
 //var placeList = JSON.parse(fs.readFileSync('./config/placeColours.json'));
@@ -107,6 +108,7 @@ function processData(from, to, index, callback, single) {
                   //console.info(colors.blue("segment.activities exists"));
                   segment.activities.forEach(function(activity, i) {
                     //Reached Activity: Individual PolylineThing
+                    activity.uuid = uuid.v1();
                     delete activity.manual;
                     activity.points = activity.trackPoints;
                     delete activity.trackPoints;

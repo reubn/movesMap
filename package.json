@@ -24,6 +24,7 @@
   "dependencies": {
     "mime": "^1.2.11",
     "moment": "^2.8.4",
+    "node-uuid": "^1.4.2"
   },
   "devDependencies": {
     "colors": "^1.0.3",
