@@ -1,11 +1,9 @@
 //jshint camelcase: true,es3: true,newcap: true,unused: true,browser: true, node: true, nonstandard: true, loopfunc: true
-var me = {
+var movesMap = {
   movementGraph: {
     name: "movementGraph",
     url: "../data/map.json",
-    classes: "ones",
     specialConstructor: google.maps.Map,
-    desc: "Movement",
     type: "Map",
     config: {
       zoom: 3,
@@ -294,8 +292,8 @@ var me = {
             });
 
             //Populate Min & Max Dates
-            chart.other.dateSlider.rangeObj.timestampArray.push(moment(chart.data.processedPaths[i].startTime.valueOf()).startOf("day"));
-            chart.other.dateSlider.rangeObj.timestampArray.push(moment(chart.data.processedPaths[i].endTime.valueOf()).endOf("day"));
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].startTime.startOf("day").valueOf());
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].endTime.endOf("day").valueOf());
 
             //Populate Key
             if ([].filter.call(chart.other.key.childNodes, function(node) {
@@ -341,15 +339,9 @@ var me = {
                 } else {
                   this.className = this.className.replace(/off/g, "on");
 
-                  // chart.data.processedPaths.map(function(a) {
-                  //   //console.log(a.type + " " + thisOne.type);
-                  //   if (a.type == thisOne.type) {
-                  //     a.setMap(chart.graph);
-                  //   }
-                  // });
                   chart.other.key.typeMask.push(thisOne.type);
                   chart.other.dataFilter.remove('type');
-                  chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
+                  //chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
                   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                   chart.data.processedPaths.forEach(function(p) {
                     p.setMap(null);
@@ -362,33 +354,11 @@ var me = {
               });
 
               chart.other.key.appendChild(chart.other.key.entries[i]);
-              //<span class="toggle on" style="color: #00d55a">Walking</span>
             }
 
 
             //Zoom Map
             chart.graph.fitBounds(chart.other.bounds);
-
-            //Right Click Group Select
-            /*google.maps.event.addListener(chart.data.processedPaths[i], 'rightclick', function (event) {
-                        console.log(this);
-                                    var infowindow = new google.maps.InfoWindow({
-                                        content: convertCase(this.type) + "</br>" + this.inKm().toFixed(2) + "km",
-                                        position: event.latLng
-                                    }); infowindow.open(chart.graph);
-                        var thisOne = this;
-                        chart.data.processedPaths.map(function (a) {
-                            //console.log(a.type + " " + thisOne.type);
-                            if (a.type != thisOne.type) {
-                                a.setMap(null);
-                            }
-                        });
-                        google.maps.event.addListener(chart.graph, 'click', function (event) {
-                            chart.data.processedPaths.map(function (a) {
-                                a.setMap(chart.graph);
-                            });
-                        });
-                    });*/
 
             google.maps.event.addListener(chart.data.processedPaths[i], 'click', function(event) {
               console.log(this);
@@ -467,7 +437,7 @@ var me = {
         chart.other.dateSliderFrom.step = 86400000;
         chart.other.dateSliderFrom.min = Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
         chart.other.dateSliderFrom.max = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
-        chart.other.dateSliderFrom.value = Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
+        chart.other.dateSliderFrom.value = chart.other.dateSliderFrom.min;
         chart.other.dateSliderFrom.className = "dateSlider";
         chart.other.dateSliderFrom.id = "dateSliderFrom";
 
@@ -501,7 +471,7 @@ var me = {
         chart.other.dateSlider.appendChild(chart.other.dateSliderFrom);
 
         //Set Initial Values
-        chart.other.dateSlider.rangeObj.from.date = moment(Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray));
+        chart.other.dateSlider.rangeObj.from.date = Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
         chart.other.dateSlider.rangeObj.from.raw = Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
 
 
@@ -511,7 +481,7 @@ var me = {
         chart.other.dateSliderTo.step = 86400000;
         chart.other.dateSliderTo.min = Math.min.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
         chart.other.dateSliderTo.max = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
-        chart.other.dateSliderTo.value = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
+        chart.other.dateSliderTo.value = chart.other.dateSliderTo.max;
         chart.other.dateSliderTo.className = "dateSlider";
         chart.other.dateSliderTo.id = "dateSliderTo";
 
@@ -533,7 +503,7 @@ var me = {
         chart.other.dateSlider.appendChild(chart.other.dateSliderTo);
 
         //Set Initial Values
-        chart.other.dateSlider.rangeObj.to.date = moment(Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray));
+        chart.other.dateSlider.rangeObj.to.date = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
         chart.other.dateSlider.rangeObj.to.raw = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
 
       }

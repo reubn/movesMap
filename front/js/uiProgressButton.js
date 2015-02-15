@@ -91,7 +91,7 @@
 
 	UIProgressButton.prototype._submit = function() {
 		// by adding the loading class the button will transition to a "circle"
-		classie.addClass( this.el, 'loading' );
+		this.el.classList.add('loading' );
 
 		var self = this,
 			onEndBtnTransitionFn = function( ev ) {
@@ -136,10 +136,10 @@
 					// draw stroke of success (checkmark) or error (cross).
 					statusEl.draw( 1 );
 					// add respective class to the element
-					classie.addClass( self.el, statusClass );
+					self.el.classList.add(statusClass );
 					// after options.statusTime remove status and undraw the respective stroke. Also enable the button.
 					setTimeout( function() {
-						classie.remove( self.el, statusClass );
+						self.el.classList.remove(statusClass );
 						statusEl.draw(0);
 						self._enable();
 					}, self.options.statusTime );
@@ -148,7 +148,7 @@
 					self._enable();
 				}
 				// finally remove class loading.
-				classie.removeClass( self.el, 'loading' );
+				self.el.classList.remove('loading' );
 			};
 
 		// give it a time (ideally the same like the transition time) so that the last progress increment animation is still visible.

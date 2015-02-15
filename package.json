@@ -24,9 +24,9 @@
   "dependencies": {
     "mime": "^1.2.11",
     "moment": "^2.8.4",
-    "randomcolor": "^0.1.1"
   },
   "devDependencies": {
-    "colors": "^1.0.3"
+    "colors": "^1.0.3",
+    "longjohn": "^0.2.4"
   }
 }

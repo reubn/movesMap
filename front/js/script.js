@@ -8,63 +8,56 @@ window.onload = function() {
   //document.getElementById('uploadTest').addEventListener('touchend',function(evt){this.className = this.className.replace(/hovered/g,"")});
 
   //Loop Over Config
-  for (var chart in me) {
+  for (var chart in movesMap) {
 
     //Init Request Mechanism
-    me[chart].request = (window.XMLHttpRequest) ? (new XMLHttpRequest()) : (new ActiveXObject("Microsoft.XMLHTTP"));
+    movesMap[chart].request = (window.XMLHttpRequest) ? (new XMLHttpRequest()) : (new ActiveXObject("Microsoft.XMLHTTP"));
 
     //When Data Is Ready
-    me[chart].request.onreadystatechange = (function(chart) {
+    movesMap[chart].request.onreadystatechange = (function(chart) {
 
       //Some Complicated Magic
       return function() {
 
         //If Request Ready
-        if (me[chart].request.readyState == 4 && me[chart].request.status == 200) {
+        if (movesMap[chart].request.readyState == 4 && movesMap[chart].request.status == 200) {
           console.log(chart);
           //Generic Init
-          me[chart].data = JSON.parse(me[chart].request.responseText);
-          me[chart].container = document.getElementById(me[chart].name);
-          me[chart].canvas = document.getElementById(me[chart].name + "Canvas");
+          movesMap[chart].data = JSON.parse(movesMap[chart].request.responseText);
+          movesMap[chart].container = document.getElementById(movesMap[chart].name);
+          movesMap[chart].canvas = document.getElementById(movesMap[chart].name + "Canvas");
 
           //Init Canvas Context
-          if (!!me[chart].canvas.getContext) {
-            me[chart].ctx = me[chart].canvas.getContext("2d");
+          if (!!movesMap[chart].canvas.getContext) {
+            movesMap[chart].ctx = movesMap[chart].canvas.getContext("2d");
           }
 
           //Before Construction Functions
-          for (var bcf in me[chart].beforeConstructionFunctions) {
-            me[chart].beforeConstructionFunctions[bcf](me[chart]);
+          for (var bcf in movesMap[chart].beforeConstructionFunctions) {
+            movesMap[chart].beforeConstructionFunctions[bcf](movesMap[chart]);
           }
 
-          me[chart].graph = new me[chart].specialConstructor(me[chart].canvas, me[chart].config);
+          movesMap[chart].graph = new movesMap[chart].specialConstructor(movesMap[chart].canvas, movesMap[chart].config);
 
           //After Construction Functions
-          for (var acf in me[chart].afterConstructionFunctions) {
-            me[chart].afterConstructionFunctions[acf](me[chart]);
+          for (var acf in movesMap[chart].afterConstructionFunctions) {
+            movesMap[chart].afterConstructionFunctions[acf](movesMap[chart]);
           }
 
           //Event Handlers
-          for (var handle in me[chart].handlers) {
-            me[chart].canvas.addEventListener(handle, me[chart].handlers[handle]);
+          for (var handle in movesMap[chart].handlers) {
+            movesMap[chart].canvas.addEventListener(handle, movesMap[chart].handlers[handle]);
           }
 
           //Announce
-          console.log("Got " + me[chart].url);
+          console.log("Got " + movesMap[chart].url);
         }
       }
     })(chart);
 
     //Fetch Data
-    me[chart].request.open("GET", me[chart].url, true);
-    me[chart].request.send();
-  }
-
-  //FastClick
-  if ('addEventListener' in document) {
-    document.addEventListener('DOMContentLoaded', function() {
-      FastClick.attach(document.body);
-    }, false);
+    movesMap[chart].request.open("GET", movesMap[chart].url, true);
+    movesMap[chart].request.send();
   }
 
 };
@@ -100,76 +93,6 @@ var progbtn = new UIProgressButton(document.getElementById('update'), {
     xmlhttp.send();
   }
 });
-
-
-function findWithAttr(arra, attr, value) {
-  var key = null;
-  for (var i = 0; i < arra.length; i += 1) {
-    if (arra[i][attr] == value) {
-      key = i;
-    }
-  }
-  return key;
-}
-
-function formatSeconds(d) {
-  d = Number(d);
-  var h = Math.floor(d / 3600);
-  var m = Math.floor(d % 3600 / 60);
-  return ((h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "00:") + (m > 0 ? (m < 10 ? "0" : "") + m : "00"));
-}
-
-function clone(src) {
-  function mixin(dest, source, copyFunc) {
-    var name, s, i, empty = {};
-    for (name in source) {
-      // the (!(name in empty) || empty[name] !== s) condition avoids copying properties in "source"
-      // inherited from Object.prototype.	 For example, if dest has a custom toString() method,
-      // don't overwrite it with the toString() method that source inherited from Object.prototype
-      s = source[name];
-      if (!(name in dest) || (dest[name] !== s && (!(name in empty) || empty[name] !== s))) {
-        dest[name] = copyFunc ? copyFunc(s) : s;
-      }
-    }
-    return dest;
-  }
-
-  if (!src || typeof src != "object" || Object.prototype.toString.call(src) === "[object Function]") {
-    // null, undefined, any non-object, or function
-    return src; // anything
-  }
-  if (src.nodeType && "cloneNode" in src) {
-    // DOM Node
-    return src.cloneNode(true); // Node
-  }
-  if (src instanceof Date) {
-    // Date
-    return new Date(src.getTime()); // Date
-  }
-  if (src instanceof RegExp) {
-    // RegExp
-    return new RegExp(src); // RegExp
-  }
-  var r, i, l;
-  if (src instanceof Array) {
-    // array
-    r = [];
-    for (i = 0, l = src.length; i < l; ++i) {
-      if (i in src) {
-        r.push(clone(src[i]));
-      }
-    }
-    // we don't clone functions for performance reasons
-    //		}else if(d.isFunction(src)){
-    //			// function
-    //			r = function(){ return src.apply(this, arguments); };
-  } else {
-    // generic objects
-    r = src.constructor ? new src.constructor() : {};
-  }
-  return mixin(r, src, clone);
-
-}
 
 function convertCase(str) {
   return str.toLowerCase().replace(/_/g, " ").replace(/(^| |_)(\w)/g, function(x) {

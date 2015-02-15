@@ -3,7 +3,6 @@ var moves = require('./moves-api');
 var moment = require('moment');
 var fs = require("fs");
 var colors = require('colors/safe');
-var randomColor = require('randomColor');
 
 //var placeList = JSON.parse(fs.readFileSync('./config/placeColours.json'));
 
@@ -28,6 +27,12 @@ function mapMovement(from, to) {
   }
   //console.info(colors.blue(from + " " + to));
   if (dayDiff(moment(from, 'YYYYMMDD'), moment(to, 'YYYYMMDD')) <= 7) {
+
+    console.info(colors.blue(JSON.stringify({
+      from: from,
+      to: to
+    })));
+    processData(from, to, 0, countDone, true);
 
   } else {
     //console.info(colors.blue("BIG!"));
@@ -54,7 +59,7 @@ function mapMovement(from, to) {
 
     chunks.forEach(function(chunk, i) {
       console.info(colors.blue(JSON.stringify(chunk)));
-      processData(chunk.from, chunk.to, i, countDone);
+      processData(chunk.from, chunk.to, i, countDone, false);
     });
 
   }
@@ -65,8 +70,8 @@ function dayDiff(first, second) {
   return Math.ceil((second - first) / (1000 * 60 * 60 * 24));
 }
 
-function processData(from, to, index, callback) {
-  console.info(colors.blue("processData Called for Chunk: " + from + " to " + to));
+function processData(from, to, index, callback, single) {
+  console.info(colors.blue("processData Called for: " + from + " to " + to));
   moves.get('/user/storyline/daily?trackPoints=true&from=' + from + '&to=' + to, config.moves.auth.access_token, function(error, response, body) {
     //console.info(colors.blue("Reached Request Callback"))
     if (error) {
@@ -122,18 +127,17 @@ function processData(from, to, index, callback) {
       });
       //Should be done now
       console.info(colors.blue("1 data loop should be done."));
-      callback();
+      callback(single);
     }
   });
 }
 
 var intCount = 0;
 
-function countDone() {
-  //console.info(colors.blue("countDone Called"));
+function countDone(single) {
   intCount++;
-  console.info(colors.blue(intCount + " vs " + chunks.length));
-  if (intCount === chunks.length) {
+  console.info(colors.blue(intCount + " vs " + (single) ? (1) : (chunks.length)));
+  if ((single === false && intCount === chunks.length) || (single === true)) {
     console.info(colors.blue("0 chunk loop should be done."));
     process.send({
       done: true,
@@ -145,13 +149,5 @@ function countDone() {
     });
     console.log(colors.green('END! File Sent to Parent'));
     console.timeEnd("fromMapMovement");
-    // fs.writeFile('./test.json', JSON.stringify({
-    //   chart: {
-    //     paths: paths
-    //   }
-    // }), function(err) {
-    //   if (err) throw err;
-    //   console.log(colors.green('Path Test Saved'));
-    // });
   }
 }
