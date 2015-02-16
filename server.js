@@ -1,5 +1,5 @@
 //jshint camelcase: true,es3: true,newcap: true,unused: true,browser: true, node: true, nonstandard: true, loopfunc: true
-require('longjohn');
+//require('longjohn');
 var fs = require("fs");
 var http = require("http");
 var path = require('path');
@@ -17,7 +17,7 @@ fs.readFile('./config/application.json', 'utf8', function(err, configFromFile) {
 
   if (config.moves) {
     initMoves(config);
-    doAuth(config);
+    doRefresh(config);
   }
   if (config.app) {
     startServer(config);
@@ -41,29 +41,74 @@ function initMoves(config) {
   }
 }
 
-function doAuth(config) {
+function doRefresh(config) {
   if (config.moves.auth.refresh_token) {
     moves.refresh_token(config.moves.auth.refresh_token, function(error, response, body) {
       var accessToken = JSON.parse(body);
-      var now = new Date();
-      now.setSeconds(now.getSeconds() + accessToken.expires_in);
-      accessToken.expireDate = now;
-      moves.get('/user/profile', accessToken.access_token, function(error, response, body) {
+      if (!accessToken.error) {
+        var now = new Date();
+        now.setSeconds(now.getSeconds() + accessToken.expires_in);
+        accessToken.expireDate = now;
+        console.info(colors.blue("Recived Responce"));
         try {
-          config.moves.user = JSON.parse(body);
+          moves.get('/user/profile', accessToken.access_token, function(error, response, body) {
+            try {
+              config.moves.user = JSON.parse(body);
+            } catch (e) {
+              console.error(colors.red(e));
+            }
+            console.info(colors.blue("Refreshed Auth!!"));
+            console.log(colors.green("We Have Auth!!"));
+            config.moves.auth = accessToken;
+            saveConfig(config);
+          });
         } catch (e) {
           console.error(colors.red(e));
+          console.error(colors.red(JSON.stringify(accessToken)));
         }
-        console.info(colors.blue("Refreshed Auth!!"));
-        console.log(colors.green("We Have Auth!!"));
-        config.moves.auth = accessToken;
-        saveConfig(config);
-      });
-      //console.info(accessToken);
-
+        //console.info(accessToken);
+      } else {
+        console.error(colors.red("Error From Moves Refresh: " + JSON.stringify(accessToken)));
+      }
     });
   } else {
     console.error(colors.red("Cant Refresh AuthToken"));
+  }
+}
+
+function doAuthConversion(config, req, res, query) {
+  if (query.code) {
+    moves.token(query.code, function(error, response, body) {
+      var accessToken = JSON.parse(body);
+      if (!accessToken.error) {
+        var now = new Date();
+        now.setSeconds(now.getSeconds() + accessToken.expires_in);
+        accessToken.expireDate = now;
+        console.info(colors.blue("Recived Responce"));
+        try {
+          moves.get('/user/profile', accessToken.access_token, function(error, response, body) {
+            try {
+              config.moves.user = JSON.parse(body);
+            } catch (e) {
+              console.error(colors.red(e));
+            }
+            console.log(colors.green("We Have Auth!!"));
+            config.moves.auth = accessToken;
+            saveConfig(config);
+            res.writeHead(200, {});
+            res.end(JSON.stringify(accessToken));
+          });
+        } catch (e) {
+          console.error(colors.red(e));
+          console.error(colors.red(JSON.stringify(accessToken)));
+        }
+        //console.info(accessToken);
+      } else {
+        console.error(colors.red("authCode wont convert to accessToken: " + JSON.stringify(accessToken)));
+      }
+    });
+  } else {
+    console.error(colors.red("No AuthCode Provided"));
   }
 }
 
@@ -78,29 +123,8 @@ function startServer(config) {
 
     if (params[1] == "auth") {
       console.info(colors.blue("Auth Flow"));
-      moves.token(query.code, function(error, response, body) {
-        var accessToken = JSON.parse(body);
-        if (accessToken.error !== null) {
-          var now = new Date();
-          now.setSeconds(now.getSeconds() + accessToken.expires_in);
-          accessToken.expireDate = now;
-          moves.get('/user/profile', accessToken.access_token, function(error, response, body) {
-            try {
-              config.moves.user = JSON.parse(body);
-            } catch (e) {
-              console.error(colors.red(e));
-              console.error(colors.red(body));
-            }
-            console.log(colors.green("We Have Auth!!"));
-            config.moves.auth = accessToken;
-            saveConfig(config);
-          });
-        } else {
-          console.error(colors.red("authCode wont convert to accessToken"));
-        }
-        res.writeHead(200, {});
-        res.end(JSON.stringify(accessToken));
-      });
+
+      doAuthConversion(config, req, res, query);
     } else if (params[1] == "login") {
       console.info(colors.blue("Login Flow"));
       res.writeHead(302, {
@@ -111,7 +135,8 @@ function startServer(config) {
       });
       res.end();
 
-    } else if (params[1] == "update") {
+    } else
+    if (params[1] == "update") {
       console.info(colors.blue("Update Flow"));
       res.writeHead(200, {});
       var updaterSpawn = cp.fork('./update.js');
