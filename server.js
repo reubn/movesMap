@@ -155,15 +155,25 @@ function startServer(config) {
       var filename = path.join(process.cwd(), (params[1] != "config" && params[1] != "data") ? ("front") : (""), unescape(uri));
       var stats;
 
-      function serveFile(filename) {
-        console.info(colors.blue("Serving Static File From: " + filename));
-        var mimeType = mime.lookup(filename);
-        res.writeHead(200, {
-          'Content-Type': mimeType
-        });
+      function serveFile(filename, config) {
+        if (config.app.fileBlackList.map(function(f) {
+            return filename.replace(/[\\]/g,"/").indexOf(f.replace(/[\\]/g,"/")) >= 0
+          }).every(function(r) {
+            return r === false
+          })) {
+          console.info(colors.blue("Serving Static File From: " + filename));
+          var mimeType = mime.lookup(filename);
+          res.writeHead(200, {
+            'Content-Type': mimeType
+          });
 
-        var fileStream = fs.createReadStream(filename);
-        fileStream.pipe(res);
+          var fileStream = fs.createReadStream(filename);
+          fileStream.pipe(res);
+        } else {
+          console.log(colors.yellow("File BlackListed: " + filename));
+          res.writeHead(401, {});
+          res.end("Access Denied");
+        }
       }
 
       try {
@@ -194,7 +204,7 @@ function startServer(config) {
 
       if (stats.isFile()) {
         // path exists, is a file
-        serveFile(filename);
+        serveFile(filename, config);
       } else {
         // Symbolic link, other?
         // TODO: follow symlinks?  security?
@@ -206,7 +216,7 @@ function startServer(config) {
       }
 
     } else {
-      console.info(colors.blue("Request Not Handled"));
+      console.info(colors.yellow("Request Not Handled"));
       res.writeHead(500, {});
       res.end("Hmmmm");
     }

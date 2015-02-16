@@ -2,7 +2,8 @@
   "app": {
     "ip": null,
     "port": 80,
-    "fileBlackList":["application.json"]
+    "fileBlackList":["application.json"],
+    "preRecordList":["dataRecordedBeforeMovesAccount.json"]
   },
   "moves": {
     "clientID": "*!CHANGE THIS!*",
