@@ -93,6 +93,7 @@ function doAuthConversion(config, req, res, query) {
               config.moves.user = JSON.parse(body);
             } catch (e) {
               console.error(colors.red(e));
+              console.error(colors.red(body));
             }
             console.log(colors.green("We Have Auth!!"));
             config.moves.auth = accessToken;

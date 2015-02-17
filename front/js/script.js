@@ -79,11 +79,13 @@ new UIProgressButton(document.getElementById('update'), {
       console.log(xmlhttp.status);
       //Increase Button Percent by 25%
       progbtn.setProgress(xmlhttp.readyState * 0.25);
-      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      console.log(xmlhttp.readyState + " " + xmlhttp.status.toString()[0]);
+      if (xmlhttp.readyState == 4 && xmlhttp.status.toString()[0] == "2") {
         //Updated
         console.log("good");
         progbtn.stop(1);
-      } else if (xmlhttp.readyState == 4 && xmlhttp.status != 200) {
+        location.reload();
+      } else if (xmlhttp.readyState == 4 && xmlhttp.status.toString()[0] != "2") {
         console.log("bad");
         progbtn.stop(-1);
       }
