@@ -2,6 +2,7 @@
   "app": {
     "ip": null,
     "port": 80,
+    "statusColors":["","","green","cyan","yellow","red"],
     "fileBlackList":["application.json"],
     "preRecordList":["dataRecordedBeforeMovesAccount.json"]
   },

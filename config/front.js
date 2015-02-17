@@ -400,7 +400,7 @@ var movesMap = {
             if (a.isAfter(b) || a.isSame(b, 'day')) {
               return true;
             } else {
-              return false
+              return false;
             }
           }, chart.other.dateSlider.rangeObj.from.date);
 
@@ -408,7 +408,7 @@ var movesMap = {
             if (a.isBefore(b) || a.isSame(b, 'day')) {
               return true;
             } else {
-              return false
+              return false;
             }
           }, chart.other.dateSlider.rangeObj.to.date);
 

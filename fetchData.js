@@ -1,7 +1,6 @@
 //jshint camelcase: true,es3: true,newcap: true,unused: true,browser: true, node: true, nonstandard: true, loopfunc: true
 var moves = require('./moves-api');
 var moment = require('moment');
-var fs = require("fs");
 var uuid = require('node-uuid');
 var colors = require('colors/safe');
 
@@ -43,8 +42,6 @@ function mapMovement(from, to) {
       from: moment(from, 'YYYYMMDD').format('YYYYMMDD'),
       to: moment(from, 'YYYYMMDD').add(6, 'd').format('YYYYMMDD')
     }];
-    var collectedPaths = {};
-    var collectedPlaces = [];
     for (var i = 0; i < numOfChunks; i++) {
       if (chunks[i]) {
         var pair = {
@@ -74,7 +71,7 @@ function dayDiff(first, second) {
 function processData(from, to, index, callback, single, retry) {
   console.info(colors.blue("processData Called for: " + from + " to " + to));
   if (retry === true) {
-    console.log(colors.yellow("processData RETRY no. " + retry + " Called for: " + from + " to " + to))
+    console.log(colors.yellow("processData RETRY no. " + retry + " Called for: " + from + " to " + to));
   }
   if (retry > 5 || !retry) {
     moves.get('/user/storyline/daily?trackPoints=true&from=' + from + '&to=' + to, config.moves.auth.access_token, function(error, response, body) {
@@ -84,9 +81,9 @@ function processData(from, to, index, callback, single, retry) {
       } else {
         //console.error(colors.red("No http Error"));
       }
-
+      var data;
       try {
-        var data = JSON.parse(body)
+        data = JSON.parse(body);
       } catch (e) {
         console.error(colors.red(e)); //error in the above string(in this case,yes)!
         console.error(colors.red(body));
@@ -100,18 +97,18 @@ function processData(from, to, index, callback, single, retry) {
         processData(from, to, index, callback, single, (retry) ? (retry + 1) : (1));
       }
       //console.info(colors.blue(body));
-      if (data) {
+      if (data && body[0]) {
         //console.info(colors.blue("data exists"));
-        data.forEach(function(day, i) {
+        data.forEach(function(day) {
           if (day.segments) {
             //console.info(colors.blue("day.segments exists"));
-            day.segments.forEach(function(segment, i) {
+            day.segments.forEach(function(segment) {
               if (segment) {
                 //console.info(colors.blue("segment exists"));
                 if (segment.type == "move") {
                   if (segment.activities) {
                     //console.info(colors.blue("segment.activities exists"));
-                    segment.activities.forEach(function(activity, i) {
+                    segment.activities.forEach(function(activity) {
                       //Reached Activity: Individual PolylineThing
                       activity.uuid = uuid.v1();
                       delete activity.manual;

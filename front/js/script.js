@@ -64,7 +64,7 @@ window.onload = function() {
 
 
 //Init ProgressButton
-var progbtn = new UIProgressButton(document.getElementById('update'), {
+new UIProgressButton(document.getElementById('update'), {
   callback: function(progbtn) {
     console.log("cb");
     //Init XMLHTTP
