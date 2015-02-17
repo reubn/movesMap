@@ -146,67 +146,67 @@ var movesMap = {
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
-      makePlaces: function (chart) {
+      makePlaces: function(chart) {
 
-          //Init Array
-          chart.data.processedPlaces = [];
+        //Init Array
+        chart.data.processedPlaces = [];
 
-          //Loop Over Places Adding to Map
-          for (var i = 0; i < chart.data.chart.places.length; i++) {
+        //Loop Over Places Adding to Map
+        for (var i = 0; i < chart.data.chart.places.length; i++) {
 
-              //Ignore Places that Have No Name
-              if (chart.data.chart.places[i].name) {
+          //Ignore Places that Have No Name
+          if (chart.data.chart.places[i].name) {
 
-                  //Create Marker
-                  chart.data.processedPlaces[i] = new google.maps.Marker({
-                      position: new google.maps.LatLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon),
-                      map: null,
-                      name: chart.data.chart.places[i].name,
-                      //timesVisited: chart.data.chart.places[i].timesVisited,
-                      id: chart.data.chart.places[i].id,
-                      draggable:true,
-                      size: 1,
-                      icon: {
-                          url: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
-                          anchor: new google.maps.Point(25, 25)
-                      }
-                  });
-
-                  //InfoWindow on Click
-                  google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function () {
-                      console.log(this);
-                      var infoWindow = new google.maps.InfoWindow({
-                          content: this.name + ":" + this.timesVisited,
-                          position: this.position
-                      });
-                      infoWindow.open(chart.graph);
-                  });
+            //Create Marker
+            chart.data.processedPlaces[i] = new google.maps.Marker({
+              position: new google.maps.LatLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon),
+              map: null,
+              name: chart.data.chart.places[i].name,
+              //timesVisited: chart.data.chart.places[i].timesVisited,
+              id: chart.data.chart.places[i].id,
+              draggable: true,
+              size: 1,
+              icon: {
+                url: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                anchor: new google.maps.Point(25, 25)
               }
+            });
+
+            //InfoWindow on Click
+            google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function() {
+              console.log(this);
+              var infoWindow = new google.maps.InfoWindow({
+                content: this.name + ":" + this.timesVisited,
+                position: this.position
+              });
+              infoWindow.open(chart.graph);
+            });
           }
+        }
 
-          //Make Place Toggle
-          chart.other.placeToggle = document.createElement("section");
-          chart.other.placeToggle.className = "standaloneToggle off";
-          chart.other.placeToggle.on = false;
-          chart.other.placeToggle.id = "placeToggle";
-          chart.other.placeToggle.innerHTML = "Places";
-          chart.other.placeToggle.addEventListener("click", function () {
-              if (this.on === false) {
-                  this.className = this.className.replace(/(\soff\s|\soff$)/g, " on");
-                  this.on = true;
-                  chart.data.processedPlaces.map(function (a) {
-                      a.setMap(chart.graph);
-                  });
-              } else {
-                  this.className = this.className.replace(/(\son\s|\son$)/g, " off");
-                  this.on = false;
-                  chart.data.processedPlaces.map(function (a) {
-                      a.setMap(null);
-                  });
-              }
-          });
+        //Make Place Toggle
+        chart.other.placeToggle = document.createElement("section");
+        chart.other.placeToggle.className = "standaloneToggle off";
+        chart.other.placeToggle.on = false;
+        chart.other.placeToggle.id = "placeToggle";
+        chart.other.placeToggle.innerHTML = "Places";
+        chart.other.placeToggle.addEventListener("click", function() {
+          if (this.on === false) {
+            this.className = this.className.replace(/(\soff\s|\soff$)/g, " on");
+            this.on = true;
+            chart.data.processedPlaces.map(function(a) {
+              a.setMap(chart.graph);
+            });
+          } else {
+            this.className = this.className.replace(/(\son\s|\son$)/g, " off");
+            this.on = false;
+            chart.data.processedPlaces.map(function(a) {
+              a.setMap(null);
+            });
+          }
+        });
 
-          chart.graph.controls[google.maps.ControlPosition.RIGHT_CENTER].push(chart.other.placeToggle);
+        chart.graph.controls[google.maps.ControlPosition.RIGHT_CENTER].push(chart.other.placeToggle);
 
       },
       makePolylines: function(chart) {
@@ -263,6 +263,7 @@ var movesMap = {
         for (var i = 0; i < chart.data.chart.paths.length; i++) {
           if (chart.data.chart.paths[i] !== null) {
             chart.data.processedPaths[i] = new google.maps.Polyline(_.assign(chart.data.chart.paths[i], {
+              bounds: new google.maps.LatLngBounds(),
               path: chart.data.chart.paths[i].points.map(function(p) {
                 var l = new google.maps.LatLng(p.lat, p.lon);
                 chart.other.bounds.extend(l);
@@ -274,6 +275,10 @@ var movesMap = {
               startTime: moment(chart.data.chart.paths[i].points[0].time, "YYYYMMDDThhmmss+ZZ"),
               endTime: moment(chart.data.chart.paths[i].points[chart.data.chart.paths[i].points.length - 1].time, "YYYYMMDDThhmmss+ZZ")
             }));
+            chart.data.chart.paths[i].points.forEach(function(p) {
+              var l = new google.maps.LatLng(p.lat, p.lon);
+              chart.data.processedPaths[i].bounds.extend(l);
+            });
 
             //Populate Min & Max Dates
             chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].startTime.clone().startOf("day").valueOf());
@@ -339,6 +344,11 @@ var movesMap = {
 
             google.maps.event.addListener(chart.data.processedPaths[i], 'click', function(event) {
               console.log(this);
+              chart.other.holdMapPos = {
+                zoom: chart.graph.getZoom(),
+                center: chart.graph.getCenter()
+              };
+              chart.graph.fitBounds(this.bounds);
               var infoWindow = new google.maps.InfoWindow({
                 content: this.inKm().toFixed(2) + "km" + "</br>" + this.startTime.format("dddd, MMMM Do YYYY, h:mm:ss a"),
                 position: event.latLng
@@ -355,6 +365,8 @@ var movesMap = {
               });
 
               google.maps.event.addListener(infoWindow, 'closeclick', function() {
+                chart.graph.setZoom(chart.other.holdMapPos.zoom);
+                chart.graph.setCenter(chart.other.holdMapPos.center);
                 chart.other.dataFilter.remove('uuid');
                 chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                 chart.data.processedPaths.forEach(function(p) {
