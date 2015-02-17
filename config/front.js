@@ -140,89 +140,75 @@ var movesMap = {
       diffColourSize: false,
       placeSizeMax: 100,
       placeSizeMin: 20,
-      placeIcon: "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='{{SIZE}}' height='{{SIZE}}' viewBox='0 0 {{SIZE}} {{SIZE}}'><circle opacity='0.1' fill='{{HEX}}' cx='{{SIZE/2}}' cy='{{SIZE/2}}' r='{{SIZE/2}}'/><circle fill='{{HEX}}' cx='{{SIZE/2}}' cy='{{SIZE/2}}' r='2'/></svg>",
+      placeIcon: "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='50' height='50' viewBox='0 0 50 50'><circle opacity='0.1' fill='#fff' cx='25' cy='25' r='25'/><circle fill='#fff' cx='25' cy='25' r='2'/></svg>",
       keyElements: [],
       filters: []
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
-      // makePlaces: function (chart) {
-      //
-      //     //Init Array
-      //     chart.data.processedPlaces = [];
-      //
-      //     //Calculate Min and Mix
-      //     chart.other.aMax = 0;
-      //     chart.data.chart.places.map(function (a) {
-      //         if (chart.other.aMax < a.timesVisited) {
-      //             chart.other.aMax = a.timesVisited;
-      //         }
-      //     });
-      //     chart.other.aMin = Infinity;
-      //     chart.data.chart.places.map(function (a) {
-      //         if (chart.other.aMin > a.timesVisited) {
-      //             chart.other.aMin = a.timesVisited;
-      //         }
-      //     });
-      //
-      //     //Loop Over Places Adding to Map
-      //     for (var i = 0; i < chart.data.chart.places.length; i++) {
-      //
-      //         //Ignore Places that Have No Name
-      //         if (chart.data.chart.places[i].name) {
-      //
-      //             //Create Marker
-      //             chart.data.processedPlaces[i] = new google.maps.Marker({
-      //                 position: new google.maps.LatLng(chart.data.chart.places[i].lat, chart.data.chart.places[i].lon),
-      //                 map: null,
-      //                 name: chart.data.chart.places[i].name,
-      //                 timesVisited: chart.data.chart.places[i].timesVisited,
-      //                 zIndex: 1000 - chart.data.chart.places[i].timesVisited,
-      //                 id: chart.data.chart.places[i].id,
-      //                 size: ((chart.other.placeSizeMax - chart.other.placeSizeMin) * ((chart.data.chart.places[i].timesVisited - chart.other.aMin) / (chart.other.aMax - chart.other.aMin))) + chart.other.placeSizeMin,
-      //                 icon: {
-      //                     url: "data:image/svg+xml;charset=utf-8;base64," + ((chart.other.diffColourSize === true) ? (window.btoa(chart.other.placeIcon.replace(/\{\{HEX\}\}/g, chart.data.chart.places[i].color).replace(/\{\{SIZE\}\}/g, (((chart.other.placeSizeMax - chart.other.placeSizeMin) * ((chart.data.chart.places[i].timesVisited - chart.other.aMin) / (chart.other.aMax - chart.other.aMin))) + chart.other.placeSizeMin)).replace(/\{\{SIZE\/2\}\}/g, (((chart.other.placeSizeMax - chart.other.placeSizeMin) * ((chart.data.chart.places[i].timesVisited - chart.other.aMin) / (chart.other.aMax - chart.other.aMin))) + chart.other.placeSizeMin) / 2))) : (window.btoa(chart.other.placeIcon.replace(/\{\{HEX\}\}/g, "#00AEEF").replace(/\{\{SIZE\}\}/g, 60).replace(/\{\{SIZE\/2\}\}/g, 30)))),
-      //                     anchor: (chart.other.diffColourSize === true) ? (new google.maps.Point((((chart.other.placeSizeMax - chart.other.placeSizeMin) * ((chart.data.chart.places[i].timesVisited - chart.other.aMin) / (chart.other.aMax - chart.other.aMin))) + chart.other.placeSizeMin) / 2, (((chart.other.placeSizeMax - chart.other.placeSizeMin) * ((chart.data.chart.places[i].timesVisited - chart.other.aMin) / (chart.other.aMax - chart.other.aMin))) + chart.other.placeSizeMin) / 2)) : (new google.maps.Point(30, 30))
-      //                 }
-      //             });
-      //
-      //             //InfoWindow on Click
-      //             google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function () {
-      //                 console.log(this);
-      //                 var infoWindow = new google.maps.InfoWindow({
-      //                     content: this.name + ":" + this.timesVisited,
-      //                     position: this.position
-      //                 });
-      //                 infoWindow.open(chart.graph);
-      //             });
-      //         }
-      //     }
-      //
-      //     //Make Place Toggle
-      //     chart.other.placeToggle = document.createElement("section");
-      //     chart.other.placeToggle.className = "standaloneToggle off";
-      //     chart.other.placeToggle.on = false;
-      //     chart.other.placeToggle.id = "placeToggle";
-      //     chart.other.placeToggle.innerHTML = "Places";
-      //     chart.other.placeToggle.addEventListener("click", function () {
-      //         if (this.on === false) {
-      //             this.className = this.className.replace(/(\soff\s|\soff$)/g, " on");
-      //             this.on = true;
-      //             chart.data.processedPlaces.map(function (a) {
-      //                 a.setMap(chart.graph);
-      //             });
-      //         } else {
-      //             this.className = this.className.replace(/(\son\s|\son$)/g, " off");
-      //             this.on = false;
-      //             chart.data.processedPlaces.map(function (a) {
-      //                 a.setMap(null);
-      //             });
-      //         }
-      //     });
-      //
-      //     chart.graph.controls[google.maps.ControlPosition.RIGHT_CENTER].push(chart.other.placeToggle);
-      //
-      // },
+      makePlaces: function (chart) {
+
+          //Init Array
+          chart.data.processedPlaces = [];
+
+          //Loop Over Places Adding to Map
+          for (var i = 0; i < chart.data.chart.places.length; i++) {
+
+              //Ignore Places that Have No Name
+              if (chart.data.chart.places[i].name) {
+
+                  //Create Marker
+                  chart.data.processedPlaces[i] = new google.maps.Marker({
+                      position: new google.maps.LatLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon),
+                      map: null,
+                      name: chart.data.chart.places[i].name,
+                      //timesVisited: chart.data.chart.places[i].timesVisited,
+                      id: chart.data.chart.places[i].id,
+                      draggable:true,
+                      size: 1,
+                      icon: {
+                          url: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                          anchor: new google.maps.Point(25, 25)
+                      }
+                  });
+
+                  //InfoWindow on Click
+                  google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function () {
+                      console.log(this);
+                      var infoWindow = new google.maps.InfoWindow({
+                          content: this.name + ":" + this.timesVisited,
+                          position: this.position
+                      });
+                      infoWindow.open(chart.graph);
+                  });
+              }
+          }
+
+          //Make Place Toggle
+          chart.other.placeToggle = document.createElement("section");
+          chart.other.placeToggle.className = "standaloneToggle off";
+          chart.other.placeToggle.on = false;
+          chart.other.placeToggle.id = "placeToggle";
+          chart.other.placeToggle.innerHTML = "Places";
+          chart.other.placeToggle.addEventListener("click", function () {
+              if (this.on === false) {
+                  this.className = this.className.replace(/(\soff\s|\soff$)/g, " on");
+                  this.on = true;
+                  chart.data.processedPlaces.map(function (a) {
+                      a.setMap(chart.graph);
+                  });
+              } else {
+                  this.className = this.className.replace(/(\son\s|\son$)/g, " off");
+                  this.on = false;
+                  chart.data.processedPlaces.map(function (a) {
+                      a.setMap(null);
+                  });
+              }
+          });
+
+          chart.graph.controls[google.maps.ControlPosition.RIGHT_CENTER].push(chart.other.placeToggle);
+
+      },
       makePolylines: function(chart) {
 
         //Create DataFilter

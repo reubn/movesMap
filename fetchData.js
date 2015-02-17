@@ -7,7 +7,15 @@ var colors = require('colors/safe');
 //var placeList = JSON.parse(fs.readFileSync('./config/placeColours.json'));
 
 var config;
-var paths = [];
+var toReturn = {
+  done: true,
+  data: {
+    chart: {
+      paths: [],
+      places: []
+    }
+  }
+};
 var chunks;
 
 process.on('message', function(m) {
@@ -117,10 +125,17 @@ function processData(from, to, index, callback, single, retry) {
                       activity.type = activity.activity;
                       delete activity.activity;
                       activity.strokeColor = "#" + (config.moves.activityColours[activity.type] || "FF0000");
-                      paths.push(activity);
+                      toReturn.data.chart.paths.push(activity);
                       //console.log(colors.green("Pushed Activity. Paths Array Length is now: " + paths.length));
                     });
                   }
+                } else if (segment.type == "place" && segment.place.name && toReturn.data.chart.places.filter(function(p) {
+                    return (p.id === segment.place.id || (/*p.location.lat.toFixed(2) === segment.place.location.lat.toFixed(2) && p.location.lon.toFixed(2) === segment.place.location.lon.toFixed(2) &&*/ p.name === segment.place.name));
+                  }).length === 0) {
+                  // segment.place.startTime = segment.startTime;
+                  // segment.place.endTime = segment.endTime;
+                  // segment.place.activities = segment.activities;
+                  toReturn.data.chart.places.push(segment.place);
                 }
                 //console.info(colors.blue("3 segment.activities loop should be done."));
               }
@@ -146,14 +161,7 @@ function countDone(single) {
   console.info(colors.blue(intCount + " vs " + (single) ? (1) : (chunks.length)));
   if ((single === false && intCount === chunks.length) || (single === true)) {
     console.info(colors.blue("0 chunk loop should be done."));
-    process.send({
-      done: true,
-      data: {
-        chart: {
-          paths: paths
-        }
-      }
-    });
+    process.send(toReturn);
     console.log(colors.green('END! File Sent to Parent'));
     console.timeEnd("fromMapMovement");
   }
