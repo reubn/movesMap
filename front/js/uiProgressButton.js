@@ -8,19 +8,10 @@
  * Copyright 2014, Codrops
  * http://www.codrops.com
  */
-;( function( window ) {
-
-	'use strict';
-
-	var transEndEventNames = {
-			'WebkitTransition': 'webkitTransitionEnd',
-			'MozTransition': 'transitionend',
-			'OTransition': 'oTransitionEnd',
-			'msTransition': 'MSTransitionEnd',
-			'transition': 'transitionend'
-		},
-		transEndEventName = 'transitionend',
-		support = { transitions : true };
+( function(	undefined ) {
+		var transEndEventName = 'transitionend';
+		var support = { transitions : true };
+		var globalScope = (typeof global !== 'undefined' && (typeof window === 'undefined' || window === global.window)) ? global : this;
 
 	function extend( a, b ) {
 		for( var key in b ) {
@@ -91,7 +82,7 @@
 
 	UIProgressButton.prototype._submit = function() {
 		// by adding the loading class the button will transition to a "circle"
-		this.el.classList.add('loading' );
+		 this.el.classList.add('loading' );
 
 		var self = this,
 			onEndBtnTransitionFn = function( ev ) {
@@ -165,6 +156,6 @@
 	}
 
 	// add to global namespace
-	window.UIProgressButton = UIProgressButton;
+	globalScope.UIProgressButton = UIProgressButton;
 
-})( window );
+}).call(this);

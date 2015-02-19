@@ -95,6 +95,7 @@ function processData(from, to, index, callback, single, retry) {
       } catch (e) {
         console.error(colors.red(e)); //error in the above string(in this case,yes)!
         console.error(colors.red(body));
+        processData(from, to, index, callback, single, (retry) ? (retry + 1) : (1));
       }
 
       if (body[0]) {

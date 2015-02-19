@@ -146,6 +146,15 @@ var movesMap = {
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
+      makeInfoWindow: function(chart) {
+        //Make Info Window
+        chart.other.infoWindow = document.createElement("section");
+        chart.other.infoWindow.className = "infoWindowContainer";
+        chart.other.infoWindow.id = "infoWindow";
+        chart.other.infoWindow.innerHTML = "";
+
+        chart.graph.controls[google.maps.ControlPosition.RIGHT_TOP].push(chart.other.infoWindow);
+      },
       makePlaces: function(chart) {
 
         //Init Array
@@ -175,11 +184,16 @@ var movesMap = {
             //InfoWindow on Click
             google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function() {
               console.log(this);
-              var infoWindow = new google.maps.InfoWindow({
-                content: this.name + ":" + this.timesVisited,
-                position: this.position
-              });
-              infoWindow.open(chart.graph);
+              //   var infoWindow = new google.maps.InfoWindow({
+              //     content: this.name + ":" + this.timesVisited,
+              //     position: this.position
+              //   });
+              //   infoWindow.open(chart.graph);
+
+              outputToInfoWindow(this, [{
+                name: "Name",
+                func: "name"
+              }], document.getElementById("infoWindow"));
             });
           }
         }
@@ -349,22 +363,34 @@ var movesMap = {
                 center: chart.graph.getCenter()
               };
               chart.graph.fitBounds(this.bounds);
-              var infoWindow = new google.maps.InfoWindow({
-                content: this.inKm().toFixed(2) + "km" + "</br>" + this.startTime.format("dddd, MMMM Do YYYY, h:mm:ss a"),
-                position: event.latLng
-              });
-              infoWindow.open(chart.graph);
-              var thisOne = this;
-              chart.other.dataFilter.add('uuid', '==', thisOne.uuid);
-              chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
-              chart.data.processedPaths.forEach(function(p) {
-                p.setMap(null);
-              });
-              chart.data.filtered.forEach(function(p) {
-                p.setMap(chart.graph);
-              });
 
-              google.maps.event.addListener(infoWindow, 'closeclick', function() {
+
+              // var infoWindow = new google.maps.InfoWindow({
+              //   content: this.inKm().toFixed(2) + "km" + "</br>" + this.startTime.format("dddd, MMMM Do YYYY, h:mm:ss a"),
+              //   position: event.latLng
+              // });
+              // infoWindow.open(chart.graph);
+              outputToInfoWindow(this, [{
+                name: "Start",
+                func: function(o) {
+                  return o.startTime.format("HH:mm, dd Do MMM YY")
+                }
+              }, {
+                name: "End",
+                func: function(o) {
+                  return o.endTime.format("HH:mm, dd Do MMM YY");
+                }
+              }, {
+                name: "Distance",
+                func: function(o) {
+                  return o.inKm().toFixed(2) + "km";
+                }
+              }, {
+                name: "Type",
+                func: function(o) {
+                  return convertCase(o.type);
+                }
+              }], document.getElementById("infoWindow"), function() {
                 chart.graph.setZoom(chart.other.holdMapPos.zoom);
                 chart.graph.setCenter(chart.other.holdMapPos.center);
                 chart.other.dataFilter.remove('uuid');
@@ -376,6 +402,32 @@ var movesMap = {
                   p.setMap(chart.graph);
                 });
               });
+
+
+              var thisOne = this;
+              chart.other.dataFilter.add('uuid', '==', thisOne.uuid);
+              chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
+              chart.data.processedPaths.forEach(function(p) {
+                p.setMap(null);
+              });
+              chart.data.filtered.forEach(function(p) {
+                p.setMap(chart.graph);
+              });
+
+              // google.maps.event.addListener(infoWindow, 'closeclick', function() {
+              //   chart.graph.setZoom(chart.other.holdMapPos.zoom);
+              //   chart.graph.setCenter(chart.other.holdMapPos.center);
+              //   chart.other.dataFilter.remove('uuid');
+              //   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
+              //   chart.data.processedPaths.forEach(function(p) {
+              //     p.setMap(null);
+              //   });
+              //   chart.data.filtered.forEach(function(p) {
+              //     p.setMap(chart.graph);
+              //   });
+              // });
+
+
             });
           }
 

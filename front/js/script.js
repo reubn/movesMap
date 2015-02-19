@@ -102,6 +102,48 @@ function convertCase(str) {
   });
 }
 
+function outputToInfoWindow(obj, conf, infoWindow, onclose) {
+  while (infoWindow.hasChildNodes()) {
+    infoWindow.removeChild(infoWindow.lastChild);
+  }
+  var holder = {};
+
+  conf.forEach(function(c) {
+    holder[c.name] = document.createElement("div");
+    holder[c.name].className = "infoWindowEntry";
+    holder[c.name].id = "iw" + c.name;
+
+    holder[c.name].prop = document.createElement("span");
+    holder[c.name].prop.className = "prop";
+    holder[c.name].prop.innerHTML = c.name;
+
+    holder[c.name].val = document.createElement("span");
+    holder[c.name].val.className = "val";
+    holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
+
+    holder[c.name].appendChild(holder[c.name].prop);
+    holder[c.name].appendChild(holder[c.name].val);
+
+    infoWindow.appendChild(holder[c.name]);
+  });
+  infoWindow.classList.add("showing");
+
+  infoWindow.addEventListener("click", function _func(){
+    infoWindow.removeEventListener('click', _func);
+    infoWindow.classList.remove("showing");
+    while (infoWindow.hasChildNodes()) {
+      infoWindow.removeChild(infoWindow.lastChild);
+    }
+    var holder = {};
+
+    onclose.call();
+  });
+}
+
+function isFunction(x) {
+  return Object.prototype.toString.call(x) == '[object Function]';
+}
+
 google.maps.LatLng.prototype.kmTo = function(a) {
   var e = Math,
     ra = e.PI / 180;
