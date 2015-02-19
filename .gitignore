@@ -1,3 +1,4 @@
 data/*.json
 config/application.json
 node_modules/*
+node_modules2/*

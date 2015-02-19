@@ -1,20 +1,13 @@
 //jshint camelcase: true,es3: true,newcap: true,unused: true,browser: true, node: true, nonstandard: true, loopfunc: true
 //require('longjohn');
 var fs = require("fs");
-var http = require("http");
-var path = require('path');
-var url = require('url');
 var moves = require('./moves-api');
 var cp = require('child_process');
-var mime = require('mime');
 var colors = require('colors/safe');
-var uuid = require('node-uuid');
-var moment = require('moment');
 
 var express = require('express');
 var morgan = require('morgan');
 var compression = require('compression');
-var serveStatic = require('serve-static');
 var session = require('express-session');
 
 var config;
