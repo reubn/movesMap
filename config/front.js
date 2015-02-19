@@ -151,8 +151,13 @@ var movesMap = {
         chart.other.infoWindow = document.createElement("section");
         chart.other.infoWindow.className = "infoWindowContainer";
         chart.other.infoWindow.id = "infoWindow";
-        chart.other.infoWindow.innerHTML = "";
 
+        chart.other.infoWindow.close = document.createElement("span");
+        chart.other.infoWindow.close.className = "close";
+        chart.other.infoWindow.close.id = "iwclose";
+        chart.other.infoWindow.close.innerHTML = "+";
+
+        chart.other.infoWindow.appendChild(chart.other.infoWindow.close);
         chart.graph.controls[google.maps.ControlPosition.RIGHT_TOP].push(chart.other.infoWindow);
       },
       makePlaces: function(chart) {
@@ -206,13 +211,15 @@ var movesMap = {
         chart.other.placeToggle.innerHTML = "Places";
         chart.other.placeToggle.addEventListener("click", function() {
           if (this.on === false) {
-            this.className = this.className.replace(/(\soff\s|\soff$)/g, " on");
+            this.classList.remove("off");
+            this.classList.add("on");
             this.on = true;
             chart.data.processedPlaces.map(function(a) {
               a.setMap(chart.graph);
             });
           } else {
-            this.className = this.className.replace(/(\son\s|\son$)/g, " off");
+            this.classList.remove("on");
+            this.classList.add("off");
             this.on = false;
             chart.data.processedPlaces.map(function(a) {
               a.setMap(null);
@@ -319,7 +326,8 @@ var movesMap = {
                 var thisOne = chart.data.processedPaths[this.i];
 
                 if (this.on === true) {
-                  this.className = this.className.replace(/on/g, "off");
+                  this.classList.remove("on");
+                  this.classList.add("off");
 
                   chart.other.key.typeMask.splice(chart.other.key.typeMask.indexOf(thisOne.type), 1);
                   chart.other.dataFilter.remove('type');
@@ -333,7 +341,8 @@ var movesMap = {
                   });
                   this.on = false;
                 } else {
-                  this.className = this.className.replace(/off/g, "on");
+                  this.classList.remove("off");
+                  this.classList.add("on");
 
                   chart.other.key.typeMask.push(thisOne.type);
                   chart.other.dataFilter.remove('type');

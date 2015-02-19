@@ -2,11 +2,6 @@
 
 //On Window Load
 window.onload = function() {
-
-  //Put Test Code HERE:
-  //document.getElementById('uploadTest').addEventListener('touchstart',function(evt){this.className += " hovered"});
-  //document.getElementById('uploadTest').addEventListener('touchend',function(evt){this.className = this.className.replace(/hovered/g,"")});
-
   //Loop Over Config
   for (var chart in movesMap) {
 
@@ -103,64 +98,65 @@ function convertCase(str) {
 }
 
 function outputToInfoWindow(obj, conf, infoWindow, onclose) {
-  while (infoWindow.hasChildNodes()) {
-    infoWindow.removeChild(infoWindow.lastChild);
-  }
-  var holder = {};
+    while (infoWindow.getElementsByClassName('infoWindowEntry')[0]) {
+      infoWindow.removeChild(infoWindow.getElementsByClassName('infoWindowEntry')[0]);
+      }
+      var holder = {};
 
-  conf.forEach(function(c) {
-    holder[c.name] = document.createElement("div");
-    holder[c.name].className = "infoWindowEntry";
-    holder[c.name].id = "iw" + c.name;
+      conf.forEach(function(c) {
+        holder[c.name] = document.createElement("div");
+        holder[c.name].className = "infoWindowEntry";
+        holder[c.name].id = "iw" + c.name;
 
-    holder[c.name].prop = document.createElement("span");
-    holder[c.name].prop.className = "prop";
-    holder[c.name].prop.innerHTML = c.name;
+        holder[c.name].prop = document.createElement("span");
+        holder[c.name].prop.className = "prop";
+        holder[c.name].prop.innerHTML = c.name;
 
-    holder[c.name].val = document.createElement("span");
-    holder[c.name].val.className = "val";
-    holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
+        holder[c.name].val = document.createElement("span");
+        holder[c.name].val.className = "val";
+        holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
 
-    holder[c.name].appendChild(holder[c.name].prop);
-    holder[c.name].appendChild(holder[c.name].val);
+        holder[c.name].appendChild(holder[c.name].prop);
+        holder[c.name].appendChild(holder[c.name].val);
 
-    infoWindow.appendChild(holder[c.name]);
-  });
-  infoWindow.classList.add("showing");
+        infoWindow.appendChild(holder[c.name]);
+      });
+      infoWindow.classList.add("showing");
 
-  infoWindow.addEventListener("click", function _func(){
-    infoWindow.removeEventListener('click', _func);
-    infoWindow.classList.remove("showing");
-    while (infoWindow.hasChildNodes()) {
-      infoWindow.removeChild(infoWindow.lastChild);
-    }
-    var holder = {};
+      infoWindow.close.addEventListener("click", function _func() {
+          infoWindow.removeEventListener('click', _func);
+          infoWindow.classList.remove("showing");
 
-    onclose.call();
-  });
-}
+          while (infoWindow.getElementsByClassName('infoWindowEntry')[0]) {
+            infoWindow.removeChild(infoWindow.getElementsByClassName('infoWindowEntry')[0]);
+            }
+            var holder = {};
 
-function isFunction(x) {
-  return Object.prototype.toString.call(x) == '[object Function]';
-}
+            onclose.call();
+          });
+      }
 
-google.maps.LatLng.prototype.kmTo = function(a) {
-  var e = Math,
-    ra = e.PI / 180;
-  var b = this.lat() * ra,
-    c = a.lat() * ra,
-    d = b - c;
-  var g = this.lng() * ra - a.lng() * ra;
-  var f = 2 * e.asin(e.sqrt(e.pow(e.sin(d / 2), 2) + e.cos(b) * e.cos(c) * e.pow(e.sin(g / 2), 2)));
-  return f * 6378.137;
-}
+      function isFunction(x) {
+        return Object.prototype.toString.call(x) == '[object Function]';
+      }
 
-google.maps.Polyline.prototype.inKm = function(n) {
-  var a = this.getPath(n),
-    len = a.getLength(),
-    dist = 0;
-  for (var i = 0; i < len - 1; i++) {
-    dist += a.getAt(i).kmTo(a.getAt(i + 1));
-  }
-  return dist;
-}
+      google.maps.LatLng.prototype.kmTo = function(a) {
+        var e = Math,
+          ra = e.PI / 180;
+        var b = this.lat() * ra,
+          c = a.lat() * ra,
+          d = b - c;
+        var g = this.lng() * ra - a.lng() * ra;
+        var f = 2 * e.asin(e.sqrt(e.pow(e.sin(d / 2), 2) + e.cos(b) * e.cos(c) * e.pow(e.sin(g / 2), 2)));
+        return f * 6378.137;
+      }
+
+      google.maps.Polyline.prototype.inKm = function(n) {
+        var a = this.getPath(n),
+          len = a.getLength(),
+          dist = 0;
+        for (var i = 0; i < len - 1; i++) {
+          dist += a.getAt(i).kmTo(a.getAt(i + 1));
+        }
+        return dist;
+      }

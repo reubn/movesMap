@@ -266,55 +266,51 @@ html, body {
   border: #fff solid 2px;
   color: #fff;
   /* padding: 0.5rem; */
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
-
 #infoWindow.showing div {
-    /* border-right: rgba(255,255,255,0.5) solid 1px; */
-    /* border-bottom: rgba(255,255,255,0.5) solid 1px; */
-    padding-left: 0.5rem;
-    padding-top: 0.5rem;
-    overflow: hidden;
-    flex-basis: auto;
-    flex-grow: 1;
-    flex-shrink: 1;
+  padding: 0.5rem;
+  padding-right: .75rem;
+  overflow: hidden;
+  flex-basis: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
 }
-
 #infoWindow.showing div .prop {
-    font-size: 1rem;
-    display: block;
-    margin: 0;
-    padding: 0;
-    color: rgba(255,255,255,0.7);
+  font-size: 1rem;
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.7);
 }
-
 #infoWindow.showing div .val {
-    font-size: 2rem;    display: block;
-    font-weight: 300;
-    top: -0.75rem;
-    position: relative;
-    left: 0.5rem;
+  font-size: 2rem;
+  display: block;
+  font-weight: 300;
+  top: -0.75rem;
+  position: relative;
+  left: 0.5rem;
 }
-
-#infoWindow.showing:before {
-    content: "+";
-    font-size: 2rem;
-    font-weight: bold;
-    position: absolute;
-    right: 0.5rem;
-    top: -0.5rem;
-    opacity: 0.5;
-    transform:rotate(45deg);
+#infoWindow.showing .close {
+  content: "+";
+  font-size: 2rem;
+  font-weight: bold;
+  position: absolute;
+  right: 0.5rem;
+  top: -0.5rem;
+  opacity: 0.5;
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  cursor: pointer;
 }
-
-#infoWindow.showing:hover:before {
-    color: #E6413D;
-    opacity: 1;
-    font-weight: bold;
+#infoWindow.showing .close:hover {
+  color: #E6413D;
+  opacity: 1;
+  font-weight: bold;
 }
-
 /* Button container */
 
 .progress-button {
