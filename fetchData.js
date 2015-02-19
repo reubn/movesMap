@@ -131,7 +131,7 @@ function processData(from, to, index, callback, single, retry) {
                     });
                   }
                 } else if (segment.type == "place" && segment.place.name && toReturn.data.chart.places.filter(function(p) {
-                    return (p.id === segment.place.id || (/*p.location.lat.toFixed(2) === segment.place.location.lat.toFixed(2) && p.location.lon.toFixed(2) === segment.place.location.lon.toFixed(2) &&*/ p.name === segment.place.name));
+                    return (p.id === segment.place.id || (p.name === segment.place.name));
                   }).length === 0) {
                   // segment.place.startTime = segment.startTime;
                   // segment.place.endTime = segment.endTime;

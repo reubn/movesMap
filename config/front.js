@@ -381,6 +381,11 @@ var movesMap = {
                   return o.endTime.format("HH:mm, dd Do MMM YY");
                 }
               }, {
+                name: "Speed",
+                func: function(o) {
+                  return (o.inKm()/o.endTime.diff(o.startTime, 'hours',true)).toFixed(2) + "km/h";
+                }
+              }, {
                 name: "Distance",
                 func: function(o) {
                   return o.inKm().toFixed(2) + "km";
