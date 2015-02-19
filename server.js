@@ -126,7 +126,10 @@ function doAuthConversion(config, authCode, callback) {
 
 function startServer(config, app, server) {
   //Middleware
-  app.use(morgan('dev'));
+  app.use(morgan(':statusColor :method :url :status :response-time ms - :res[content-length]'));
+  morgan.token('statusColor', function(req, res) {
+    return colors[config.app.statusColors[res.statusCode.toString()[0]]]("█");
+  });
   app.use(compression());
   //app.use(session({secret: config.app.sessionSecret}));
   app.use(serveStatic('front/'));
@@ -161,7 +164,7 @@ function startServer(config, app, server) {
   });
 
   app.get('/config/*', function(req, res) {
-    res.sendfile("config/front.js");
+    res.sendFile(__dirname + "/config/front.js");
   });
 
   //Start Server
