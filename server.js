@@ -9,6 +9,7 @@ var express = require('express');
 var morgan = require('morgan');
 var compression = require('compression');
 var session = require('express-session');
+var serveStatic = require('serve-static');
 
 var config;
 var app = express();
@@ -128,8 +129,8 @@ function startServer(config, app, server) {
   app.use(morgan('dev'));
   app.use(compression());
   //app.use(session({secret: config.app.sessionSecret}));
-  app.use(express.static('front/'));
-  app.use('/data', express.static('data/'));
+  app.use(serveStatic('front/'));
+  app.use('/data', serveStatic('data/'));
 
   //Routing
   app.get('/login', function(req, res) {
