@@ -6,6 +6,7 @@ var fs = require("fs");
 var moves = require('./moves-api');
 var cp = require('child_process');
 var colors = require('colors/safe');
+var assign = require('lodash.assign');
 
 var express = require('express');
 var morgan = require('morgan');
@@ -14,18 +15,9 @@ var session = require('express-session');
 var serveStatic = require('serve-static');
 var helmet = require('helmet');
 
-var sslOptions = {
-  key: fs.readFileSync('ssl/local.reub.tk.key'),
-  ca: fs.readFileSync('ssl/local.reub.tk.ca-bundle'),
-  cert: fs.readFileSync('ssl/local_reub_tk.crt'),
-  ciphers: 'ECDHE-RSA-AES256-SHA:AES256-SHA:RC4-SHA:RC4:HIGH:!MD5:!aNULL:!EDH:!AESGCM',
-  honorCipherOrder: true
-};
-
 var config;
 var app = express();
-var httpServer;
-var httpsServer;
+var servers = {};
 
 fs.readFile('./config/application.json', 'utf8', function(err, configFromFile) {
   if (err) throw err;
@@ -37,7 +29,11 @@ fs.readFile('./config/application.json', 'utf8', function(err, configFromFile) {
     doRefresh(config);
   }
   if (config.app) {
-    startServer(config, app, httpServer, httpsServer, sslOptions);
+    startServer(config, app, servers, (config.app.https) ? (assign({}, config.app.https || {}, {
+      "key": (config.app.https.key) ? (fs.readFileSync(config.app.https.key)) : (null),
+      "ca": (config.app.https.ca) ? (fs.readFileSync(config.app.https.ca)) : (null),
+      "cert": (config.app.https.cert) ? (fs.readFileSync(config.app.https.cert)) : (null)
+    })) : (null));
   }
 });
 
@@ -136,7 +132,7 @@ function doAuthConversion(config, authCode, callback) {
 //console.info(colors[config.app.statusColors[status.code.toString()[0]]]("█") + " [" + moment().format("YYYY-MM-DD HH:mm:ss:SSSZZ") + "] " + colors.cyan(req.url + " " + JSON.stringify(params) + " " + JSON.stringify(query)) + " " + colors.blue(JSON.stringify(status)) + "  " + (status.timeDiff[0] * 1e9 + status.timeDiff[1]) + "ns");
 //}
 
-function startServer(config, app, httpServer, httpsServer, sslOptions) {
+function startServer(config, app, servers, sslOptions) {
   //Middleware
   app.use(morgan(':statusColor :method :url :status :response-time ms - :res[content-length]'));
   morgan.token('statusColor', function(req, res) {
@@ -158,11 +154,11 @@ function startServer(config, app, httpServer, httpsServer, sslOptions) {
 
   app.get('/auth', function(req, res) {
     doAuthConversion(config, req.query.code, function(a) {
-      res.json(a);
+      res.redirect('/');
     });
   });
 
-  app.get('/update', function(req, res) {
+  app.all('/update', function(req, res) {
     var updaterSpawn = cp.fork('./update.js');
     updaterSpawn.send({
       from: req.query.from || null,
@@ -184,13 +180,14 @@ function startServer(config, app, httpServer, httpsServer, sslOptions) {
   // server = app.listen(config.app.port, function() {
   //   console.info(colors.blue("Server Started. Port: " + colors.magenta(server.address().port) + " IP: " + colors.magenta(server.address().address)));
   // });
-  httpServer = http.createServer(app);
-  httpsServer = https.createServer(sslOptions, app);
-
-  httpServer.listen(80, function() {
-    console.info(colors.blue("Server Started. Port: " + colors.magenta(httpServer.address().port) + " IP: " + colors.magenta(httpServer.address().address)));
+  servers.http = http.createServer(app);
+  servers.http.listen(80, function(server) {
+    console.info(colors.blue("Server Started. Port: " + colors.magenta(servers.http.address().port) + " IP: " + colors.magenta(servers.http.address().address)));
   });
-  httpsServer.listen(443, function() {
-    console.info(colors.blue("Server Started. Port: " + colors.magenta(httpsServer.address().port) + " IP: " + colors.magenta(httpsServer.address().address)));
+  if(config.app.https && sslOptions){
+  servers.https = https.createServer(sslOptions, app);
+  servers.https.listen(443, function() {
+    console.info(colors.blue("Server Started. Port: " + colors.magenta(servers.https.address().port) + " IP: " + colors.magenta(servers.https.address().address)));
   });
+}
 }

@@ -2,6 +2,7 @@
   "app": {
     "ip": null,
     "port": 80,
+    "https": false,
     "sessionSecret":"password",
     "statusColors":["","","green","cyan","yellow","red"],
     "fileBlackList":["application.json"],
