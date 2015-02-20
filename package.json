@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Map of Everywhere a Moves User has been.",
   "main": "server.js",
-  "repository":"github.com/reubn/movesMap.git",
+  "repository": "github.com/reubn/movesMap.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,6 +26,7 @@
     "compression": "^1.4.1",
     "express": "^4.11.2",
     "express-session": "^1.10.3",
+    "helmet": "^0.6.1",
     "moment": "^2.8.4",
     "morgan": "^1.5.1",
     "node-uuid": "^1.4.2",

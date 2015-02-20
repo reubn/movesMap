@@ -1,5 +1,7 @@
 //jshint camelcase: true,es3: true,newcap: true,unused: true,browser: true, node: true, nonstandard: true, loopfunc: true
 //require('longjohn');
+var http = require('http');
+var https = require('https');
 var fs = require("fs");
 var moves = require('./moves-api');
 var cp = require('child_process');
@@ -10,10 +12,20 @@ var morgan = require('morgan');
 var compression = require('compression');
 var session = require('express-session');
 var serveStatic = require('serve-static');
+var helmet = require('helmet');
+
+var sslOptions = {
+  key: fs.readFileSync('ssl/local.reub.tk.key'),
+  ca: fs.readFileSync('ssl/local.reub.tk.ca-bundle'),
+  cert: fs.readFileSync('ssl/local_reub_tk.crt'),
+  ciphers: 'ECDHE-RSA-AES256-SHA:AES256-SHA:RC4-SHA:RC4:HIGH:!MD5:!aNULL:!EDH:!AESGCM',
+  honorCipherOrder: true
+};
 
 var config;
 var app = express();
-var server;
+var httpServer;
+var httpsServer;
 
 fs.readFile('./config/application.json', 'utf8', function(err, configFromFile) {
   if (err) throw err;
@@ -25,7 +37,7 @@ fs.readFile('./config/application.json', 'utf8', function(err, configFromFile) {
     doRefresh(config);
   }
   if (config.app) {
-    startServer(config, app, server);
+    startServer(config, app, httpServer, httpsServer, sslOptions);
   }
 });
 
@@ -124,7 +136,7 @@ function doAuthConversion(config, authCode, callback) {
 //console.info(colors[config.app.statusColors[status.code.toString()[0]]]("█") + " [" + moment().format("YYYY-MM-DD HH:mm:ss:SSSZZ") + "] " + colors.cyan(req.url + " " + JSON.stringify(params) + " " + JSON.stringify(query)) + " " + colors.blue(JSON.stringify(status)) + "  " + (status.timeDiff[0] * 1e9 + status.timeDiff[1]) + "ns");
 //}
 
-function startServer(config, app, server) {
+function startServer(config, app, httpServer, httpsServer, sslOptions) {
   //Middleware
   app.use(morgan(':statusColor :method :url :status :response-time ms - :res[content-length]'));
   morgan.token('statusColor', function(req, res) {
@@ -132,6 +144,7 @@ function startServer(config, app, server) {
   });
   app.use(compression());
   //app.use(session({secret: config.app.sessionSecret}));
+  app.use(helmet());
   app.use(serveStatic('front/'));
   app.use('/data', serveStatic('data/'));
 
@@ -168,7 +181,16 @@ function startServer(config, app, server) {
   });
 
   //Start Server
-  server = app.listen(config.app.port, function() {
-    console.info(colors.blue("Server Started. Port: " + colors.magenta(server.address().port) + " IP: " + colors.magenta(server.address().address)));
+  // server = app.listen(config.app.port, function() {
+  //   console.info(colors.blue("Server Started. Port: " + colors.magenta(server.address().port) + " IP: " + colors.magenta(server.address().address)));
+  // });
+  httpServer = http.createServer(app);
+  httpsServer = https.createServer(sslOptions, app);
+
+  httpServer.listen(80, function() {
+    console.info(colors.blue("Server Started. Port: " + colors.magenta(httpServer.address().port) + " IP: " + colors.magenta(httpServer.address().address)));
+  });
+  httpsServer.listen(443, function() {
+    console.info(colors.blue("Server Started. Port: " + colors.magenta(httpsServer.address().port) + " IP: " + colors.magenta(httpsServer.address().address)));
   });
 }
