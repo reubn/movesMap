@@ -32,7 +32,11 @@ window.onload = function() {
             movesMap[chart].beforeConstructionFunctions[bcf](movesMap[chart]);
           }
 
-          movesMap[chart].graph = new movesMap[chart].specialConstructor(movesMap[chart].canvas, movesMap[chart].config);
+          if (movesMap[chart].newConstructor) {
+            movesMap[chart].graph = new movesMap[chart].specialConstructor(movesMap[chart].canvas, movesMap[chart].config);
+          } else {
+            movesMap[chart].graph = movesMap[chart].specialConstructor(movesMap[chart].canvas, movesMap[chart].config);
+          }
 
           //After Construction Functions
           for (var acf in movesMap[chart].afterConstructionFunctions) {
@@ -98,65 +102,83 @@ function convertCase(str) {
 }
 
 function outputToInfoWindow(obj, conf, infoWindow, onclose) {
+  while (infoWindow.getElementsByClassName('infoWindowEntry')[0]) {
+    infoWindow.removeChild(infoWindow.getElementsByClassName('infoWindowEntry')[0]);
+  }
+  var holder = {};
+
+  conf.forEach(function(c) {
+    holder[c.name] = document.createElement("div");
+    holder[c.name].className = "infoWindowEntry";
+    holder[c.name].id = "iw" + c.name;
+
+    holder[c.name].prop = document.createElement("span");
+    holder[c.name].prop.className = "prop";
+    holder[c.name].prop.innerHTML = c.name;
+
+    holder[c.name].val = document.createElement("span");
+    holder[c.name].val.className = "val";
+    holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
+
+    holder[c.name].appendChild(holder[c.name].prop);
+    holder[c.name].appendChild(holder[c.name].val);
+
+    infoWindow.appendChild(holder[c.name]);
+  });
+  infoWindow.classList.add("showing");
+
+  infoWindow.close.addEventListener("click", function _func() {
+    infoWindow.close.removeEventListener('click', _func);
+    infoWindow.classList.remove("showing");
+
     while (infoWindow.getElementsByClassName('infoWindowEntry')[0]) {
       infoWindow.removeChild(infoWindow.getElementsByClassName('infoWindowEntry')[0]);
-      }
-      var holder = {};
+    }
+    var holder = {};
 
-      conf.forEach(function(c) {
-        holder[c.name] = document.createElement("div");
-        holder[c.name].className = "infoWindowEntry";
-        holder[c.name].id = "iw" + c.name;
+    onclose.call(obj);
+  });
+}
 
-        holder[c.name].prop = document.createElement("span");
-        holder[c.name].prop.className = "prop";
-        holder[c.name].prop.innerHTML = c.name;
+function isFunction(x) {
+  return Object.prototype.toString.call(x) == '[object Function]';
+}
 
-        holder[c.name].val = document.createElement("span");
-        holder[c.name].val.className = "val";
-        holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
+// google.maps.LatLng.prototype.kmTo = function(a) {
+//   var e = Math,
+//     ra = e.PI / 180;
+//   var b = this.lat() * ra,
+//     c = a.lat() * ra,
+//     d = b - c;
+//   var g = this.lng() * ra - a.lng() * ra;
+//   var f = 2 * e.asin(e.sqrt(e.pow(e.sin(d / 2), 2) + e.cos(b) * e.cos(c) * e.pow(e.sin(g / 2), 2)));
+//   return f * 6378.137;
+// }
+//
+// google.maps.Polyline.prototype.inKm = function(n) {
+//   var a = this.getPath(n),
+//     len = a.getLength(),
+//     dist = 0;
+//   for (var i = 0; i < len - 1; i++) {
+//     dist += a.getAt(i).kmTo(a.getAt(i + 1));
+//   }
+//   return dist;
+// }
 
-        holder[c.name].appendChild(holder[c.name].prop);
-        holder[c.name].appendChild(holder[c.name].val);
+/*
+ * Extends L.Polyline to retrieve measured distance.
+ *
+ * https://github.com/danimt/Leaflet.PolylineMeasuredDistance
+ */
 
-        infoWindow.appendChild(holder[c.name]);
-      });
-      infoWindow.classList.add("showing");
+L.Polyline.prototype.measureDistance = function () {
+  var distance = 0,  coords = null, coordsArray = this._latlngs;
 
-      infoWindow.close.addEventListener("click", function _func() {
-          infoWindow.removeEventListener('click', _func);
-          infoWindow.classList.remove("showing");
+  for (i = 0; i < coordsArray.length - 1; i++) {
+    coords = coordsArray[i];
+    distance += coords.distanceTo(coordsArray[i + 1]);
+  }
 
-          while (infoWindow.getElementsByClassName('infoWindowEntry')[0]) {
-            infoWindow.removeChild(infoWindow.getElementsByClassName('infoWindowEntry')[0]);
-            }
-            var holder = {};
-
-            onclose.call();
-          });
-      }
-
-      function isFunction(x) {
-        return Object.prototype.toString.call(x) == '[object Function]';
-      }
-
-      google.maps.LatLng.prototype.kmTo = function(a) {
-        var e = Math,
-          ra = e.PI / 180;
-        var b = this.lat() * ra,
-          c = a.lat() * ra,
-          d = b - c;
-        var g = this.lng() * ra - a.lng() * ra;
-        var f = 2 * e.asin(e.sqrt(e.pow(e.sin(d / 2), 2) + e.cos(b) * e.cos(c) * e.pow(e.sin(g / 2), 2)));
-        return f * 6378.137;
-      }
-
-      google.maps.Polyline.prototype.inKm = function(n) {
-        var a = this.getPath(n),
-          len = a.getLength(),
-          dist = 0;
-        for (var i = 0; i < len - 1; i++) {
-          dist += a.getAt(i).kmTo(a.getAt(i + 1));
-        }
-        return dist;
-      }
+  // Return formatted distance
+  return distance/1000;
+};

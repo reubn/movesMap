@@ -3,16 +3,121 @@ var movesMap = {
   movementGraph: {
     name: "movementGraph",
     url: "../data/map.json",
-    newConstructor: true,
-    specialConstructor: L.map,
+    specialConstructor: google.maps.Map,
     type: "Map",
     config: {
-      center: new L.latLng(52.5, -2.7),
-      zoom: 1,
-
-      layers: [L.tileLayer('http://{s}.tiles.mapbox.com/v4/reubnn.5ea8bb0f/{z}/{x}/{y}.png?access_token={at}', {
-        at: "pk.eyJ1IjoicmV1Ym5uIiwiYSI6IkdwNWk5eXcifQ.ACZOaLvBQTPi24WU8LYUXg"
-      })]
+      zoom: 3,
+      center: new google.maps.LatLng(0, -180),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDoubleClickZoom: true,
+      disableDefaultUI: true,
+      streetViewControl: true,
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+      },
+      styles: [{
+        "featureType": "landscape",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#101010"
+        }]
+      }, {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [{
+          "color": "#464646"
+        }, {
+          "visibility": "simplified"
+        }]
+      }, {
+        "elementType": "labels",
+        "stylers": [{
+          "visibility": "off"
+        }]
+      }, {
+        "featureType": "poi",
+        "stylers": [{
+          "visibility": "off"
+        }]
+      }, {
+        "featureType": "transit",
+        "stylers": [{
+          "visibility": "off"
+        }]
+      }, {
+        "featureType": "road",
+        "elementType": "labels",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#222222"
+        }, {
+          "weight": 1
+        }]
+      }, {
+        "featureType": "road",
+        "elementType": "labels.text.stroke",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "weight": 2.8
+        }, {
+          "color": "#525252"
+        }]
+      }, {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#2D2D2D"
+        }]
+      }, {
+        "featureType": "transit.line",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#2A2A2A"
+        }]
+      }, {
+        "featureType": "road.highway",
+        "elementType": "labels.icon",
+        "stylers": [{
+          "visibility": "off"
+        }]
+      }, {
+        "featureType": "administrative",
+        "elementType": "labels.text.fill",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#0F0F0F"
+        }, {
+          "weight": 1
+        }]
+      }, {
+        "featureType": "administrative",
+        "elementType": "labels.text.stroke",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "weight": 4
+        }, {
+          "color": "#464646"
+        }]
+      }, {
+        "featureType": "administrative",
+        "elementType": "geometry",
+        "stylers": [{
+          "visibility": "on"
+        }, {
+          "color": "#313131"
+        }, {
+          "weight": 1.3
+        }]
+      }]
     },
     handlers: {
       dblclick: function() {
@@ -53,9 +158,7 @@ var movesMap = {
         chart.other.infoWindow.close.innerHTML = "+";
 
         chart.other.infoWindow.appendChild(chart.other.infoWindow.close);
-
-        //Display
-        document.body.insertBefore(chart.other.infoWindow, chart.canvas);
+        chart.graph.controls[google.maps.ControlPosition.RIGHT_TOP].push(chart.other.infoWindow);
       },
       makePlaces: function(chart) {
 
@@ -69,20 +172,31 @@ var movesMap = {
           if (chart.data.chart.places[i].name) {
 
             //Create Marker
-            chart.data.processedPlaces[i] = new L.marker(new L.latLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon), _.assign(chart.data.chart.places[i], {
-              icon: new L.icon({
-                iconUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
-                iconRetinaUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
-                iconAnchor: [25, 25]
-              })
-            }));
+            chart.data.processedPlaces[i] = new google.maps.Marker({
+              position: new google.maps.LatLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon),
+              map: null,
+              name: chart.data.chart.places[i].name,
+              //timesVisited: chart.data.chart.places[i].timesVisited,
+              id: chart.data.chart.places[i].id,
+              size: 1,
+              icon: {
+                url: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                anchor: new google.maps.Point(25, 25)
+              }
+            });
 
             //InfoWindow on Click
-            chart.data.processedPlaces[i].addEventListener('click', function() {
-              console.log(this)
+            google.maps.event.addListener(chart.data.processedPlaces[i], 'click', function() {
+              console.log(this);
+              //   var infoWindow = new google.maps.InfoWindow({
+              //     content: this.name + ":" + this.timesVisited,
+              //     position: this.position
+              //   });
+              //   infoWindow.open(chart.graph);
+
               outputToInfoWindow(this, [{
                 name: "Name",
-                func: "options.name"
+                func: "name"
               }], document.getElementById("infoWindow"));
             });
           }
@@ -100,20 +214,19 @@ var movesMap = {
             this.classList.add("on");
             this.on = true;
             chart.data.processedPlaces.map(function(a) {
-              a.addTo(chart.graph);
+              a.setMap(chart.graph);
             });
           } else {
             this.classList.remove("on");
             this.classList.add("off");
             this.on = false;
             chart.data.processedPlaces.map(function(a) {
-              a.addTo(null);
+              a.setMap(null);
             });
           }
         });
 
-        //Display
-        document.body.insertBefore(chart.other.placeToggle, chart.canvas);
+        chart.graph.controls[google.maps.ControlPosition.RIGHT_CENTER].push(chart.other.placeToggle);
 
       },
       makePolylines: function(chart) {
@@ -152,8 +265,8 @@ var movesMap = {
         //Child HUD
         chart.other.dateSlider.appendChild(chart.other.dateSlider.hud);
 
-        //Display
-        document.body.insertBefore(chart.other.dateSlider, chart.canvas);
+        //Push to Map
+        chart.graph.controls[google.maps.ControlPosition.TOP_CENTER].push(chart.other.dateSlider);
 
 
         //Create Key
@@ -162,47 +275,43 @@ var movesMap = {
         chart.other.key.id = "key";
         chart.other.key.entries = [];
         chart.other.key.typeMask = [];
-
-        //Display
-        document.body.insertBefore(chart.other.key, chart.canvas);
-
+        chart.graph.controls[google.maps.ControlPosition.LEFT_CENTER].push(chart.other.key);
 
         //Main
         chart.data.processedPaths = [];
-        //chart.other.bounds = L.latLngBounds();
+        chart.other.bounds = new google.maps.LatLngBounds();
         for (var i = 0; i < chart.data.chart.paths.length; i++) {
           if (chart.data.chart.paths[i] !== null) {
-            chart.data.processedPaths[i] = L.polyline(chart.data.chart.paths[i].points.map(function(p) {
-              var l = new L.LatLng(p.lat, p.lon);
-              l.time = moment(p.time, "YYYYMMDDThhmmss+ZZ")
-              if (chart.other.bounds) {
+            chart.data.processedPaths[i] = new google.maps.Polyline(_.assign(chart.data.chart.paths[i], {
+              bounds: new google.maps.LatLngBounds(),
+              path: chart.data.chart.paths[i].points.map(function(p) {
+                var l = new google.maps.LatLng(p.lat, p.lon);
                 chart.other.bounds.extend(l);
-              } else {
-                chart.other.bounds = new L.latLngBounds(l);
-              }
-              return l;
-            }), _.assign(chart.data.chart.paths[i], {
+                return l;
+              }),
               geodesic: true,
               strokeOpacity: 0.4,
-              weight: 2.5,
-              lineCap: "round",
-              color: chart.data.chart.paths[i].strokeColor,
+              strokeWeight: 2.5,
               startTime: moment(chart.data.chart.paths[i].points[0].time, "YYYYMMDDThhmmss+ZZ"),
               endTime: moment(chart.data.chart.paths[i].points[chart.data.chart.paths[i].points.length - 1].time, "YYYYMMDDThhmmss+ZZ")
             }));
+            chart.data.chart.paths[i].points.forEach(function(p) {
+              var l = new google.maps.LatLng(p.lat, p.lon);
+              chart.data.processedPaths[i].bounds.extend(l);
+            });
 
             //Populate Min & Max Dates
-            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].options.startTime.clone().startOf("day").valueOf());
-            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].options.endTime.clone().endOf("day").valueOf());
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].startTime.clone().startOf("day").valueOf());
+            chart.other.dateSlider.rangeObj.timestampArray.push(chart.data.processedPaths[i].endTime.clone().endOf("day").valueOf());
 
             //Populate Key
             if ([].filter.call(chart.other.key.childNodes, function(node) {
-                return node.id == chart.data.processedPaths[i].options.type;
+                return node.id == chart.data.processedPaths[i].type;
               }).length < 1) {
-              chart.other.key.typeMask[i] = chart.data.processedPaths[i].options.type;
+              chart.other.key.typeMask[i] = chart.data.processedPaths[i].type;
 
               chart.other.key.entries[i] = document.createElement("span");
-              chart.other.key.entries[i].innerHTML = convertCase(chart.data.processedPaths[i].options.type);
+              chart.other.key.entries[i].innerHTML = convertCase(chart.data.processedPaths[i].type);
               chart.other.key.entries[i].i = i;
               chart.other.key.entries[i].on = true;
               chart.other.key.entries[i].chart = chart;
@@ -219,32 +328,30 @@ var movesMap = {
                   this.classList.remove("on");
                   this.classList.add("off");
 
-                  chart.other.key.typeMask.splice(chart.other.key.typeMask.indexOf(thisOne.options.type), 1);
-                  chart.other.dataFilter.remove('options.type');
-                  chart.other.dataFilter.add('options.type', '==', chart.other.key.typeMask);
+                  chart.other.key.typeMask.splice(chart.other.key.typeMask.indexOf(thisOne.type), 1);
+                  chart.other.dataFilter.remove('type');
+                  chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
                   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                   chart.data.processedPaths.forEach(function(p) {
-                    chart.graph.removeLayer(p);
+                    p.setMap(null);
                   });
                   chart.data.filtered.forEach(function(p) {
-                    chart.graph.addLayer(p);
+                    p.setMap(chart.graph);
                   });
                   this.on = false;
                 } else {
                   this.classList.remove("off");
                   this.classList.add("on");
 
-                  chart.other.key.typeMask.push(thisOne.options.type);
-                  console.log(thisOne);
-                  chart.other.dataFilter.remove('options.type');
-                  chart.other.dataFilter.add('options.type', '==', chart.other.key.typeMask);
+                  chart.other.key.typeMask.push(thisOne.type);
+                  chart.other.dataFilter.remove('type');
+                  chart.other.dataFilter.add('type', '==', chart.other.key.typeMask);
                   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
-                  console.log(chart.data.filtered);
                   chart.data.processedPaths.forEach(function(p) {
-                    chart.graph.removeLayer(p);
+                    p.setMap(null);
                   });
                   chart.data.filtered.forEach(function(p) {
-                    chart.graph.addLayer(p);
+                    p.setMap(chart.graph);
                   });
                   this.on = true;
                 }
@@ -257,82 +364,79 @@ var movesMap = {
             //Zoom Map
             chart.graph.fitBounds(chart.other.bounds);
 
-            chart.data.processedPaths[i].addEventListener('click', function(event) {
+            google.maps.event.addListener(chart.data.processedPaths[i], 'click', function(event) {
               console.log(this);
               chart.other.holdMapPos = {
                 zoom: chart.graph.getZoom(),
                 center: chart.graph.getCenter()
               };
-              chart.graph.fitBounds(this.getBounds());
+              chart.graph.fitBounds(this.bounds);
 
-              chart.other.speedPoly = L.speedSplit(this, 1000);
-              chart.graph.removeLayer(this);
-              chart.graph.addLayer(chart.other.speedPoly);
-              console.log(this);
 
+              // var infoWindow = new google.maps.InfoWindow({
+              //   content: this.inKm().toFixed(2) + "km" + "</br>" + this.startTime.format("dddd, MMMM Do YYYY, h:mm:ss a"),
+              //   position: event.latLng
+              // });
+              // infoWindow.open(chart.graph);
               outputToInfoWindow(this, [{
                 name: "Start",
                 func: function(o) {
-                  return o.options.startTime.format("HH:mm, dd Do MMM YY")
+                  return o.startTime.format("HH:mm, dd Do MMM YY")
                 }
               }, {
                 name: "End",
                 func: function(o) {
-                  return o.options.endTime.format("HH:mm, dd Do MMM YY");
+                  return o.endTime.format("HH:mm, dd Do MMM YY");
                 }
               }, {
                 name: "Speed",
                 func: function(o) {
-                  return (o.measureDistance() / o.options.endTime.diff(o.options.startTime, 'hours', true)).toFixed(2) + "km/h";
+                  return (o.inKm() / o.endTime.diff(o.startTime, 'hours', true)).toFixed(2) + "km/h";
                 }
               }, {
                 name: "Distance",
                 func: function(o) {
-                  return o.measureDistance().toFixed(2) + "km";
+                  return o.inKm().toFixed(2) + "km";
                 }
               }, {
                 name: "Type",
                 func: function(o) {
-                  return convertCase(o.options.type);
+                  return convertCase(o.type);
                 }
               }], document.getElementById("infoWindow"), function() {
-                console.log(this);
-
-                chart.graph.addLayer(this);
-                chart.graph.removeLayer(chart.other.speedPoly);
-
-                chart.graph.setView(chart.other.holdMapPos.center, chart.other.holdMapPos.zoom);
-                chart.other.dataFilter.remove('options.uuid');
+                chart.graph.setZoom(chart.other.holdMapPos.zoom);
+                chart.graph.setCenter(chart.other.holdMapPos.center);
+                chart.other.dataFilter.remove('uuid');
                 chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
                 chart.data.processedPaths.forEach(function(p) {
-                  chart.graph.removeLayer(p);
+                  p.setMap(null);
                 });
                 chart.data.filtered.forEach(function(p) {
-                  chart.graph.addLayer(p);
+                  p.setMap(chart.graph);
                 });
               });
 
 
               var thisOne = this;
-              chart.other.dataFilter.add('options.uuid', '==', thisOne.options.uuid);
+              chart.other.dataFilter.add('uuid', '==', thisOne.uuid);
               chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
               chart.data.processedPaths.forEach(function(p) {
-                chart.graph.removeLayer(p);
+                p.setMap(null);
               });
-              // chart.data.filtered.forEach(function(p) {
-              //   chart.graph.addLayer(p);
-              // });
+              chart.data.filtered.forEach(function(p) {
+                p.setMap(chart.graph);
+              });
 
               // google.maps.event.addListener(infoWindow, 'closeclick', function() {
               //   chart.graph.setZoom(chart.other.holdMapPos.zoom);
               //   chart.graph.setCenter(chart.other.holdMapPos.center);
-              //   chart.other.dataFilter.remove('options.uuid');
+              //   chart.other.dataFilter.remove('uuid');
               //   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
               //   chart.data.processedPaths.forEach(function(p) {
-              //     p.addTo(null);
+              //     p.setMap(null);
               //   });
               //   chart.data.filtered.forEach(function(p) {
-              //     chart.graph.addLayer(p);
+              //     p.setMap(chart.graph);
               //   });
               // });
 
@@ -345,17 +449,17 @@ var movesMap = {
         //Copy processedPaths to filtered
         chart.data.filtered = chart.data.processedPaths.slice(0);
         chart.data.filtered.forEach(function(p) {
-          chart.graph.addLayer(p);
+          p.setMap(chart.graph);
         });
 
         //Create Sliders
 
         //Slider Update function
         chart.other.dateSlider.updateFunction = function(chart) {
-          chart.other.dataFilter.remove('options.startTime');
-          chart.other.dataFilter.remove('options.endTime');
+          chart.other.dataFilter.remove('startTime');
+          chart.other.dataFilter.remove('endTime');
 
-          chart.other.dataFilter.add('options.startTime', function(a, b) {
+          chart.other.dataFilter.add('startTime', function(a, b) {
             if (a.isAfter(b) || a.isSame(b, 'day')) {
               return true;
             } else {
@@ -363,7 +467,7 @@ var movesMap = {
             }
           }, chart.other.dateSlider.rangeObj.from.date);
 
-          chart.other.dataFilter.add('options.endTime', function(a, b) {
+          chart.other.dataFilter.add('endTime', function(a, b) {
             if (a.isBefore(b) || a.isSame(b, 'day')) {
               return true;
             } else {
@@ -373,10 +477,10 @@ var movesMap = {
 
           chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
           chart.data.processedPaths.forEach(function(p) {
-            chart.graph.removeLayer(p);
+            p.setMap(null);
           });
           chart.data.filtered.forEach(function(p) {
-            chart.graph.addLayer(p);
+            p.setMap(chart.graph);
           });
           console.log(chart.other.dataFilter.conditions);
         }
@@ -407,9 +511,9 @@ var movesMap = {
           //   //console.log(a.type + " " + thisOne.type);
           //   if ((a.startTime.isAfter(chart.other.dateSlider.rangeObj.from.date) || a.startTime.isSame(chart.other.dateSlider.rangeObj.from.date, 'day'))
           //        && (a.endTime.isBefore(chart.other.dateSlider.rangeObj.to.date) || a.endTime.isSame(chart.other.dateSlider.rangeObj.to.date, 'day'))) {
-          //     a.addTo(chart.graph);
+          //     a.setMap(chart.graph);
           //   } else {
-          //     a.addTo(null);
+          //     a.setMap(null);
           //   }
           //
           // });

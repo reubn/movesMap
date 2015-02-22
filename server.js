@@ -134,7 +134,7 @@ function doAuthConversion(config, authCode, callback) {
 
 function startServer(config, app, servers, sslOptions) {
   //Middleware
-  app.use(morgan(':statusColor :method :url :status :response-time ms - :res[content-length]'));
+  app.use(morgan(':statusColor :method :url :status :response-time ms - :res[content-length] - [:date[clf]]'));
   morgan.token('statusColor', function(req, res) {
     return colors[config.app.statusColors[res.statusCode.toString()[0]]]("█");
   });
