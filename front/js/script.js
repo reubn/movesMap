@@ -118,7 +118,7 @@ function outputToInfoWindow(obj, conf, infoWindow, onclose) {
 
     holder[c.name].val = document.createElement("span");
     holder[c.name].val.className = "val";
-    holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (obj[c.func]);
+    holder[c.name].val.innerHTML = (isFunction(c.func)) ? (c.func(obj)) : (objByPath(obj, c.func));
 
     holder[c.name].appendChild(holder[c.name].prop);
     holder[c.name].appendChild(holder[c.name].val);
@@ -171,8 +171,10 @@ function isFunction(x) {
  * https://github.com/danimt/Leaflet.PolylineMeasuredDistance
  */
 
-L.Polyline.prototype.measureDistance = function () {
-  var distance = 0,  coords = null, coordsArray = this._latlngs;
+L.Polyline.prototype.measureDistance = function() {
+  var distance = 0,
+    coords = null,
+    coordsArray = this._latlngs;
 
   for (i = 0; i < coordsArray.length - 1; i++) {
     coords = coordsArray[i];
@@ -180,5 +182,18 @@ L.Polyline.prototype.measureDistance = function () {
   }
 
   // Return formatted distance
-  return distance/1000;
+  return distance / 1000;
 };
+
+function objByPath(element, field) {
+  var a = field.replace(/\[(\w+)\]/g, '.$1').split('.');
+  while (a.length) {
+    var n = a.shift();
+    if (n in element) {
+      element = element[n];
+    } else {
+      return;
+    }
+  }
+  return element;
+}

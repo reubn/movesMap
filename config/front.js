@@ -100,14 +100,14 @@ var movesMap = {
             this.classList.add("on");
             this.on = true;
             chart.data.processedPlaces.map(function(a) {
-              a.addTo(chart.graph);
+              chart.graph.addLayer(a);
             });
           } else {
             this.classList.remove("on");
             this.classList.add("off");
             this.on = false;
             chart.data.processedPlaces.map(function(a) {
-              a.addTo(null);
+              chart.graph.removeLayer(a);
             });
           }
         });
@@ -329,7 +329,7 @@ var movesMap = {
               //   chart.other.dataFilter.remove('options.uuid');
               //   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
               //   chart.data.processedPaths.forEach(function(p) {
-              //     p.addTo(null);
+              //     chart.graph.removeLayer(p);
               //   });
               //   chart.data.filtered.forEach(function(p) {
               //     chart.graph.addLayer(p);
@@ -407,9 +407,9 @@ var movesMap = {
           //   //console.log(a.type + " " + thisOne.type);
           //   if ((a.startTime.isAfter(chart.other.dateSlider.rangeObj.from.date) || a.startTime.isSame(chart.other.dateSlider.rangeObj.from.date, 'day'))
           //        && (a.endTime.isBefore(chart.other.dateSlider.rangeObj.to.date) || a.endTime.isSame(chart.other.dateSlider.rangeObj.to.date, 'day'))) {
-          //     a.addTo(chart.graph);
+          //     chart.graph.addLayer(a);
           //   } else {
-          //     a.addTo(null);
+          //     chart.graph.removeLayer(a);
           //   }
           //
           // });

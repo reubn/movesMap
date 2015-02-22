@@ -83,15 +83,17 @@
    * @protected
    */
   DataFilter.prototype.evaluateFieldValue = function(element, field) {
-    var fieldpath = (field === null || field === '' || field === undefined) ? [] : String(field).split('.');
-    var value = element;
-
-    for (var i = 0; i < fieldpath.length && value !== null && value !== undefined; i++) {
-      value = value[fieldpath[i]];
+    var a = field.replace(/\[(\w+)\]/g, '.$1').split('.');
+    while (a.length) {
+        var n = a.shift();
+        if (n in element) {
+          element = element[n];
+        } else {
+            return;
+        }
     }
-
-    return value;
-  };
+    return element;
+}
 
   /**
    * Check whether an atomic condition is true
