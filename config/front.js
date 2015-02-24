@@ -9,10 +9,17 @@ var movesMap = {
     config: {
       center: new L.latLng(52.5, -2.7),
       zoom: 1,
-
-      layers: [L.tileLayer('http://{s}.tiles.mapbox.com/v4/reubnn.5ea8bb0f/{z}/{x}/{y}.png?access_token={at}', {
-        at: "pk.eyJ1IjoicmV1Ym5uIiwiYSI6IkdwNWk5eXcifQ.ACZOaLvBQTPi24WU8LYUXg"
-      })]
+      worldCopyJump: true,
+      layers: [L.tileLayer('//{s}.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={at}', _.assign(((Math.floor(Math.random() * 2)) ? ({
+        at: "pk.eyJ1IjoicmV1Ym5uIiwiYSI6IkdwNWk5eXcifQ.ACZOaLvBQTPi24WU8LYUXg",
+        id: "reubnn.5ea8bb0f"
+      }) : ({
+        at: "pk.eyJ1IjoicmV1Ym5uMiIsImEiOiJwekJZZmRVIn0.rFB5X09HJ41dDGkcZKE34A",
+        id: "reubnn2.pstw3ik9"
+      })), {
+        detectRetina: true,
+        reuseTiles: true
+      }))]
     },
     handlers: {
       dblclick: function() {
@@ -37,10 +44,45 @@ var movesMap = {
       placeSizeMin: 20,
       placeIcon: "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='50' height='50' viewBox='0 0 50 50'><circle opacity='0.1' fill='#fff' cx='25' cy='25' r='25'/><circle fill='#fff' cx='25' cy='25' r='2'/></svg>",
       keyElements: [],
-      filters: []
+      filters: [],
+      drawFilters: []
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
+      makeUpdateButton: function(chart) {
+        //Init ProgressButton
+        new UIProgressButton(document.getElementById('update'), {
+          callback: function(progbtn) {
+            console.log("cb");
+            //Init XMLHTTP
+            var xmlhttp;
+            if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+              xmlhttp = new XMLHttpRequest();
+            } else { // code for IE6, IE5
+              xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function() {
+              console.log(xmlhttp.status);
+              //Increase Button Percent by 25%
+              progbtn.setProgress(xmlhttp.readyState * 0.25);
+              console.log(xmlhttp.readyState + " " + xmlhttp.status.toString()[0]);
+              if (xmlhttp.readyState == 4 && xmlhttp.status.toString()[0] == "2") {
+                //Updated
+                console.log("good");
+                progbtn.stop(1);
+                location.reload();
+              } else if (xmlhttp.readyState == 4 && xmlhttp.status.toString()[0] != "2") {
+                console.log("bad");
+                progbtn.stop(-1);
+              }
+            };
+
+            xmlhttp.open("GET", "/update", true);
+            xmlhttp.send();
+          }
+        });
+      },
       makeInfoWindow: function(chart) {
         //Make Info Window
         chart.other.infoWindow = document.createElement("section");
@@ -79,7 +121,7 @@ var movesMap = {
 
             //InfoWindow on Click
             chart.data.processedPlaces[i].addEventListener('click', function() {
-              console.log(this)
+              console.log(this);
               outputToInfoWindow(this, [{
                 name: "Name",
                 func: "options.name"
@@ -174,7 +216,7 @@ var movesMap = {
           if (chart.data.chart.paths[i] !== null) {
             chart.data.processedPaths[i] = L.polyline(chart.data.chart.paths[i].points.map(function(p) {
               var l = new L.LatLng(p.lat, p.lon);
-              l.time = moment(p.time, "YYYYMMDDThhmmss+ZZ")
+              l.time = moment(p.time, "YYYYMMDDThhmmss+ZZ");
               if (chart.other.bounds) {
                 chart.other.bounds.extend(l);
               } else {
@@ -183,9 +225,10 @@ var movesMap = {
               return l;
             }), _.assign(chart.data.chart.paths[i], {
               geodesic: true,
-              strokeOpacity: 0.4,
+              opacity: 0.4,
               weight: 2.5,
               lineCap: "round",
+              lineJoin: "round",
               color: chart.data.chart.paths[i].strokeColor,
               startTime: moment(chart.data.chart.paths[i].points[0].time, "YYYYMMDDThhmmss+ZZ"),
               endTime: moment(chart.data.chart.paths[i].points[chart.data.chart.paths[i].points.length - 1].time, "YYYYMMDDThhmmss+ZZ")
@@ -257,7 +300,7 @@ var movesMap = {
             //Zoom Map
             chart.graph.fitBounds(chart.other.bounds);
 
-            chart.data.processedPaths[i].addEventListener('click', function(event) {
+            chart.data.processedPaths[i].addEventListener('click', function() {
               console.log(this);
               chart.other.holdMapPos = {
                 zoom: chart.graph.getZoom(),
@@ -273,7 +316,7 @@ var movesMap = {
               outputToInfoWindow(this, [{
                 name: "Start",
                 func: function(o) {
-                  return o.options.startTime.format("HH:mm, dd Do MMM YY")
+                  return o.options.startTime.format("HH:mm, dd Do MMM YY");
                 }
               }, {
                 name: "End",
@@ -379,7 +422,7 @@ var movesMap = {
             chart.graph.addLayer(p);
           });
           console.log(chart.other.dataFilter.conditions);
-        }
+        };
 
         //From
         chart.other.dateSliderFrom = document.createElement("input");
@@ -455,6 +498,48 @@ var movesMap = {
         //Set Initial Values
         chart.other.dateSlider.rangeObj.to.date = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
         chart.other.dateSlider.rangeObj.to.raw = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
+
+        //Draw filters
+        chart.other.drawing = new L.Draw.Polygon(chart.graph).enable();
+
+        chart.graph.on('draw:created', function(e) {
+          var thisOne = e.layer;
+          //chart.other.drawFilters.push(thisOne);
+          console.log(thisOne);
+          chart.other.dataFilter.remove('_latlngs');
+          chart.other.dataFilter.add('_latlngs', function(sourceValue, conditionValue) {
+            console.log(sourceValue);
+            console.log(conditionValue);
+            var result = _.every(sourceValue.map(function(point) {
+              return pip(point, conditionValue.holder);
+            }));
+            console.log(result);
+            return result;
+          }, {holder: thisOne._latlngs});
+          chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
+          chart.data.processedPaths.forEach(function(p) {
+            chart.graph.removeLayer(p);
+          });
+          chart.data.filtered.forEach(function(p) {
+            chart.graph.addLayer(p);
+          });
+
+          chart.graph.addLayer(thisOne);
+
+          thisOne.addEventListener("dblclick",function(){
+            chart.other.dataFilter.remove('_latlngs');
+            chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
+            chart.data.processedPaths.forEach(function(p) {
+              chart.graph.removeLayer(p);
+            });
+            chart.data.filtered.forEach(function(p) {
+              chart.graph.addLayer(p);
+            });
+
+            chart.graph.removeLayer(this);
+            delete this;
+          })
+        });
 
       }
     }
