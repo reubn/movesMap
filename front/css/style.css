@@ -1,574 +1,483 @@
-*
-{
-    font-family: 'Open Sans';
+* {
+  font-family: 'Open Sans';
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+*:focus {
+  outline: 0;
+}
+::-moz-selection {
+  background: rgba(0, 0, 0, 0);
+  /* WebKit/Blink Browsers */
+}
+::selection {
+  background: rgba(0, 0, 0, 0);
+  /* WebKit/Blink Browsers */
+}
+::-moz-selection {
+  background: rgba(0, 0, 0, 0);
+  /* Gecko Browsers */
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.hide {
+  display: none;
+}
+.visible-block {
+  display: block;
+}
+.desc {
+  font-size: 1.5rem;
+}
+.btn {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  display: inline-block;
+  margin-bottom: 0;
+  padding: 6px 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-image: none;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+}
+.btn-lg {
+  font-size: 20px;
+  line-height: 1.33;
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+.btn-outline {
+  color: #00c5ff;
+  border-color: #00c5ff;
+  background-image: cubic-bezier(.785, .135, .15, .86)-gradient(90deg, #00c5ff 0%, transparent 0%);
+}
+.btn-outline:hover {
+  color: #fff;
+  background-color: #00c5ff;
+}
+.map {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #101010!important;
+}
+.gm-style {
+  background: #101010!important;
+}
+#update {
+  position: absolute;
+  z-index: 5;
+  bottom: 10px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+.key {
+  position: absolute;
+  z-index: 1000;
+  top: 50%!important;
+  overflow-y: scroll;
+  width: 150px;
 
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  max-height: 480px;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  border-radius: 5px;
+  left: 1rem;
 }
-*:focus
-{
-    outline: 0;
-}
-::-moz-selection
-{
-    background: rgba(0, 0, 0, 0);
-    /* WebKit/Blink Browsers */
-}
-::selection
-{
-    background: rgba(0, 0, 0, 0);
-    /* WebKit/Blink Browsers */
-}
-::-moz-selection
-{
-    background: rgba(0, 0, 0, 0);
-    /* Gecko Browsers */
-}
-::-webkit-scrollbar
-{
-    width: 5px;
-    height: 5px;
-}
-html,
-body
-{
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-.hide
-{
-    display: none;
-}
-.visible-block
-{
-    display: block;
-}
-.desc
-{
-    font-size: 1.5rem;
-}
-.btn
-{
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.42857143;
+.toggle {
+  font-size: 1rem;
+  line-height: 30px;
+  display: block;
+  /*background: #00d55a;*/
 
-    display: inline-block;
-
-    margin-bottom: 0;
-    padding: 6px 12px;
-
-    cursor: pointer;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
-    -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
-            transition: all .25s cubic-bezier(.785, .135, .15, .86);
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap;
-
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background-image: none;
-
-    -ms-touch-action: manipulation;
-        touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    -webkit-touch-callout: none;
+  height: 30px;
+  padding: 4px;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  text-align: center;
+  color: #fff;
+  border: transparent solid 2px;
+  border-top-width: 0;
+  border-bottom-width: 0;
 }
-.btn-lg
-{
-    font-size: 20px;
-    line-height: 1.33;
+.toggle:first-child {
+  border-top-width: 2px!important;
+  border-radius: inherit;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.toggle:last-child {
+  border-bottom-width: 2px!important;
+  border-radius: inherit;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.toggle.off {
+  background: transparent!important;
+}
+.dateSliderContainer {
+  font-size: .75rem;
+  position: absolute;
+  z-index: 1000;
+  top: 2rem!important;
+  left: 50%!important;
+  width: 50%;
+  min-width: 100px;
+  height: 40px;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+.dateSlider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin-left: 5px;
+  border-radius: 1rem;
+  -webkit-appearance: none!important;
+}
+.dateSlider::-webkit-slider-thumb {
+  position: relative;
+  z-index: 1;
+  top: -.25rem;
+  width: 1rem;
+  height: 1rem;
+  pointer-events: all;
+  border-radius: 50%;
+  outline: 0;
+  -webkit-appearance: none!important;
+}
+#dateSliderFrom::-webkit-slider-thumb:before {
+  font-size: .75rem;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  content: 'F';
+  color: #fff;
+}
+#dateSliderFrom::-webkit-slider-thumb {
+  background: #fd4141;
+  left: -1px;
+}
+#dateSliderTo::-webkit-slider-thumb:before {
+  font-size: .75rem;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  content: 'T';
+  color: #fff;
+}
+#dateSliderTo::-webkit-slider-thumb {
+  background: #ffb400;
+  left: 1px;
+}
+.dateSlider::-webkit-slider-runnable-track {
+  height: .5rem;
+  border-radius: 1rem;
+  background: #fff;
+  -webkit-appearance: none!important;
+}
+.dateSliderHud {
+  color: rgba(255, 255, 255, .8);
+}
+.dateSliderHudText {
+  display: inline-block;
+}
+.dateSliderHud b {
+  font-size: 1.35rem;
+}
+.dateSliderHudText#textFrom {
+  position: absolute;
+  top: -2rem;
+  left: 0;
+}
+.dateSliderHudText#textTo {
+  position: absolute;
+  top: .25rem;
+  right: 0;
+}
+.standaloneToggle {
+  font-size: 1.25rem;
+  font-size: 1rem;
+  font-weight: bold;
+  position: absolute;
+  z-index: 1000;
+  top: 50%;
+  right: 1rem;
+  display: block;
+  padding: 1rem;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  color: #fff;
+  border: #fff solid 2px;
+  border-radius: 6px;
+  background: transparent;
+}
+.standaloneToggle:hover {
+  color: #101010!important;
+  background: #fff!important;
+}
+#placeToggle.on:after {
+  content: ' On';
+}
+#placeToggle.on:hover:after {
+  content: ' Off';
+}
+#placeToggle.off:after {
+  content: ' Off';
+}
+#placeToggle.off:hover:after {
+  content: ' On';
+}
+#infoWindow.showing {
+  position: absolute;
+  z-index: 1000;
+  top: 1rem;
+  right: 1.5rem;
+  display: flex;
+  width: 25rem;
+  min-height: 12.5rem;
+  color: #fff;
+  border: #fff solid 2px;
+  border-radius: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#infoWindow.showing div {
+  overflow: hidden;
+  padding: .5rem;
+  padding-right: .75rem;
+  flex-basis: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+#infoWindow.showing div .prop {
+  font-size: 1rem;
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, .7);
+}
+#infoWindow.showing div .val {
+  font-size: 2rem;
+  font-weight: 300;
+  position: relative;
+  top: -.75rem;
+  left: .5rem;
+  display: block;
+}
+#infoWindow.showing .close {
+  font-size: 2rem;
+  font-weight: bold;
+  position: absolute;
+  top: -.5rem;
+  right: .5rem;
+  content: '+';
+  cursor: pointer;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  opacity: .5;
+}
+#infoWindow.showing .close:hover {
+  font-weight: bold;
+  opacity: 1;
+  color: #e6413d;
+}
 
-    padding: 10px 16px;
-
-    border-radius: 6px;
-}
-.btn-outline
-{
-    color: #00c5ff;
-    border-color: #00c5ff;
-    background-image: cubic-bezier(.785, .135, .15, .86)-gradient(90deg, #00c5ff 0%, transparent 0%);
-}
-.btn-outline:hover
-{
-    color: #fff;
-    background-color: #00c5ff;
-}
-.map
-{
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-
-    background: #101010!important;
-}
-.gm-style
-{
-    background: #101010!important;
-}
-#update
-{
-    position: absolute;
-    z-index: 5;
-    bottom: 10px;
-    left: 50%;
-
-    -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-            transform: translateX(-50%);
-}
-.key
-{
+#drawToggle {
     position: absolute;
     z-index: 1000;
-    top: 50%!important;
-
-    overflow-y: scroll;
-
-    width: 150px;
-    /* background: rgba(25, 25, 25, 0.8); */
-    max-height: 480px;
-    margin-left: 10px;
-
-    -webkit-transform: translateY(-50%);
-        -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-
+    bottom: 1rem;
+    left: 1rem;
+    height: 3rem;
+    width: 3rem;
     border-radius: 5px;
-}
-.toggle
-{
-    font-size: 1rem;
-    line-height: 30px;
-
-    display: block;
-    /*background: #00d55a;*/
-
-    height: 30px;
-    padding: 4px;
-
+    border: 2px #fff solid;
+    padding:0.5rem;
+    margin:0;
+    fill:#fff;
     -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
-            transition: all .25s cubic-bezier(.785, .135, .15, .86);
-    text-align: center;
+    transition: all .25s cubic-bezier(.785, .135, .15, .86);
+ }
+#drawToggle:hover {
+  fill:#00c5ff;
+  border-color:#00c5ff
+}
 
-    color: #fff;
-    border: transparent solid 2px;
-    border-top-width: 0;
-    border-bottom-width: 0;
-}
-.toggle:first-child
-{
-    border-top-width: 2px!important;
-    border-radius: inherit;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-.toggle:last-child
-{
-    border-bottom-width: 2px!important;
-    border-radius: inherit;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-.toggle.off
-{
-    background: transparent!important;
-}
-.dateSliderContainer
-{
-    font-size: .75rem;
-
+#vivusButton {
     position: absolute;
     z-index: 1000;
-    top: 2rem!important;
-    bottom: 0;
-    left: 0;
-    left: 50%!important;
-
-    width: 400px;
-    height: 40px;
-
-    -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-            transform: translateX(-50%);
-}
-.dateSlider
-{
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 370px;
-    margin-left: 5px;
-
-    border-radius: 1rem;
-
-    -webkit-appearance: none!important;
-}
-.dateSlider::-webkit-slider-thumb
-{
-    position: relative;
-    z-index: 1;
-    top: -.25rem;
-
-    width: 1rem;
-    height: 1rem;
-
-    pointer-events: all;
-
-    border-radius: 50%;
-    outline: 0;
-
-    -webkit-appearance: none!important;
-}
-#dateSliderFrom::-webkit-slider-thumb:before
-{
-    font-size: .75rem;
-    font-weight: bold;
-
-    position: relative;
-    bottom: .125rem;
-    left: .3rem;
-
-    content: 'F';
-
-    color: #fff;
-}
-#dateSliderFrom::-webkit-slider-thumb
-{
-    background: #fd4141;
-}
-#dateSliderTo::-webkit-slider-thumb:before
-{
-    font-size: .75rem;
-    font-weight: bold;
-
-    position: relative;
-    bottom: .125rem;
-    left: .28rem;
-
-    content: 'T';
-
-    color: #fff;
-}
-#dateSliderTo::-webkit-slider-thumb
-{
-    background: #ffb400;
-}
-.dateSlider::-webkit-slider-runnable-track
-{
-    height: .5rem;
-
-    border-radius: 1rem;
-    background: #fff;
-
-    -webkit-appearance: none!important;
-}
-.dateSliderHud
-{
-    color: rgba(255, 255, 255, .8);
-}
-.dateSliderHudText
-{
-    display: inline-block;
-}
-.dateSliderHud b
-{
-    font-size: 1.35rem;
-}
-.dateSliderHudText#textFrom
-{
-    position: absolute;
-    top: -2rem;
-    left: -70px;
-}
-.dateSliderHudText#textTo
-{
-    position: absolute;
-    top: .25rem;
-    left: 254px;
-}
-.standaloneToggle
-{
-    font-size: 1.25rem;
-    font-size: 1rem;
-    font-weight: bold;
-
-    position: absolute;
-    z-index: 1000;
-    top: 50%;
-    right: .5rem;
-
-    display: block;
-
-    margin-top: -1rem;
-    margin-right: 1.5rem;
-    padding: 1rem;
-
+    bottom: 1rem;
+    right: 1rem;
+    height: 3rem;
+    width: 3rem;
+    border-radius: 5px;
+    border: 2px #fff solid;
+    padding:0.5rem;
+    margin:0;
+    fill:#fff;
     -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
-            transition: all .25s cubic-bezier(.785, .135, .15, .86);-webkit-transform: translateY(-50%);    -ms-transform: translateY(-50%);        transform: translateY(-50%);
-
-    color: #fff;
-    border: #fff solid 2px;
-    border-radius: 6px;
-    background: transparent;
+    transition: all .25s cubic-bezier(.785, .135, .15, .86);
+ }
+ #vivusButton:hover {
+  fill:rgb(32, 239, 90);
+  border-color:rgb(32, 239, 90)
 }
-.standaloneToggle:hover
-{
-    color: #101010!important;
-    background: #fff!important;
-}
-#placeToggle.on:after
-{
-    content: ' On';
-}
-#placeToggle.on:hover:after
-{
-    content: ' Off';
-}
-#placeToggle.off:after
-{
-    content: ' Off';
-}
-#placeToggle.off:hover:after
-{
-    content: ' On';
-}
-#infoWindow.showing
-{
-    position: absolute;
-    z-index: 1000;
-    top: 1rem;
-    right: 1.5rem;
 
-    display: flex;
-
-    width: 25rem;
-    min-height: 12.5rem;
-
-    color: #fff;
-    border: #fff solid 2px;
-    border-radius: 6px;
-
-    flex-wrap: wrap;
-    justify-content: center;
-}
-#infoWindow.showing div
-{
-    overflow: hidden;
-
-    padding: .5rem;
-    padding-right: .75rem;
-
-    flex-basis: auto;
-    flex-grow: 1;
-    flex-shrink: 1;
-}
-#infoWindow.showing div .prop
-{
-    font-size: 1rem;
-
-    display: block;
-
-    margin: 0;
-    padding: 0;
-
-    color: rgba(255, 255, 255, .7);
-}
-#infoWindow.showing div .val
-{
-    font-size: 2rem;
-    font-weight: 300;
-
-    position: relative;
-    top: -.75rem;
-    left: .5rem;
-
-    display: block;
-}
-#infoWindow.showing .close
-{
-    font-size: 2rem;
-    font-weight: bold;
-
-    position: absolute;
-    top: -.5rem;
-    right: .5rem;
-
-    content: '+';
-    cursor: pointer;
-    -webkit-transform: rotate(45deg);
-            transform: rotate(45deg);
-
-    opacity: .5;
-}
-#infoWindow.showing .close:hover
-{
-    font-weight: bold;
-
-    opacity: 1;
-    color: #e6413d;
-}
 /* Button container */
 
-.progress-button
-{
-    position: relative;
-
-    display: inline-block;
-
-    width: 15%;
-    height: 4rem;
-
-    text-align: center;
+.progress-button {
+  position: relative;
+  display: inline-block;
+  width: 15%;
+  height: 4rem;
+  text-align: center;
 }
 /* Button style */
 
-.progress-button button
-{
-    font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
-
-    display: block;
-
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0;
-
-    -webkit-transition: background-color .3s, color .3s, width .3s, border-width .3s, border-color .3s;
-            transition: background-color .3s, color .3s, width .3s, border-width .3s, border-color .3s;
-    letter-spacing: 1px;
-
-    color: #00c5ff;
-    border: 2px solid #00c5ff;
-    border-radius: 5px;
-    background: transparent;
-
-    -webkit-tap-highlight-color: transparent;
+.progress-button button {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  -webkit-transition: background-color .3s, color .3s, width .3s, border-width .3s, border-color .3s;
+  transition: background-color .3s, color .3s, width .3s, border-width .3s, border-color .3s;
+  letter-spacing: 1px;
+  color: #00c5ff;
+  border: 2px solid #00c5ff;
+  border-radius: 5px;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
-.progress-button button:hover
-{
-    color: #fff;
-    background-color: #00c5ff;
+.progress-button button:hover {
+  color: #fff;
+  background-color: #00c5ff;
 }
-.progress-button button:focus
-{
-    outline: none;
+.progress-button button:focus {
+  outline: none;
 }
 /* Text (transition for when returning to initial state) */
 
-.progress-button button span
-{
-    -webkit-transition: opacity .3s .1s;
-            transition: opacity .3s .1s;
+.progress-button button span {
+  -webkit-transition: opacity .3s .1s;
+  transition: opacity .3s .1s;
 }
 /* Common style of SVGs */
 
-.progress-button svg
-{
-    position: absolute;
-    top: 0;
-    left: 50%;
-
-    -webkit-transform: translateX(-50%);
-            transform: translateX(-50%);
-    pointer-events: none;
+.progress-button svg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
-.progress-button svg path
-{
-    opacity: 0;
-
-    fill: none;
+.progress-button svg path {
+  opacity: 0;
+  fill: none;
 }
-.progress-button svg.progress-circle path
-{
-    stroke: #00c5ff;
-    stroke-width: 5;
+.progress-button svg.progress-circle path {
+  stroke: #00c5ff;
+  stroke-width: 5;
 }
-.progress-button svg.checkmark path,
-.progress-button svg.cross path
-{
-    -webkit-transition: opacity .1s;
-            transition: opacity .1s;
-
-    stroke: #fff;
-    stroke-linecap: round;
-    stroke-width: 4;
+.progress-button svg.checkmark path, .progress-button svg.cross path {
+  -webkit-transition: opacity .1s;
+  transition: opacity .1s;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-width: 4;
 }
 /* Loading, success and error effects */
 
-.loading.progress-button button
-{
-    width: 70px;
-    height: 70px;
+.loading.progress-button button {
+  width: 70px;
+  height: 70px;
+  color: #fff;
+  /* make a circle */
 
-    color: #fff;
-    /* make a circle */
-    border-width: 5px;
-    border-color: #fff;
-    border-radius: 50%;
-    background-color: transparent;
+  border-width: 5px;
+  border-color: #fff;
+  border-radius: 50%;
+  background-color: transparent;
 }
-.loading.progress-button span
-{
-    -webkit-transition: opacity .15s;
-            transition: opacity .15s;
+.loading.progress-button span {
+  -webkit-transition: opacity .15s;
+  transition: opacity .15s;
 }
-.loading.progress-button span,
-.success.progress-button span,
-.error.progress-button span
-{
-    opacity: 0;
-    /* keep it hidden in all states */
+.loading.progress-button span, .success.progress-button span, .error.progress-button span {
+  opacity: 0;
+  /* keep it hidden in all states */
 }
-.success.progress-button button,
-.error.progress-button button
-{
-    -webkit-transition: background-color .3s, width .3s, border-width .3s;
-            transition: background-color .3s, width .3s, border-width .3s;
+.success.progress-button button, .error.progress-button button {
+  -webkit-transition: background-color .3s, width .3s, border-width .3s;
+  transition: background-color .3s, width .3s, border-width .3s;
 }
-.success.progress-button button
-{
-    border-color: #00c5ff;
-    background-color: #00c5ff;
+.success.progress-button button {
+  border-color: #00c5ff;
+  background-color: #00c5ff;
 }
-.error.progress-button button
-{
-    border-color: #fb797e;
-    background-color: #fb797e;
+.error.progress-button button {
+  border-color: #fb797e;
+  background-color: #fb797e;
 }
-.loading.progress-button svg.progress-circle path,
-.success.progress-button svg.checkmark path,
-.error.progress-button svg.cross path
-{
-    -webkit-transition: stroke-dashoffset .3s;
-            transition: stroke-dashoffset .3s;
-
-    opacity: 1;
+.loading.progress-button svg.progress-circle path, .success.progress-button svg.checkmark path, .error.progress-button svg.cross path {
+  -webkit-transition: stroke-dashoffset .3s;
+  transition: stroke-dashoffset .3s;
+  opacity: 1;
 }
 /* Optional elastic effect for the width of the button */
 
-.elastic.progress-button button
-{
-    -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1), border-width .3s, border-color .3s;
-    -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1.6), border-width .3s, border-color .3s;
-            transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1.6), border-width .3s, border-color .3s;
+.elastic.progress-button button {
+  -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1), border-width .3s, border-color .3s;
+  -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1.6), border-width .3s, border-color .3s;
+  transition: background-color .3s, color .3s, width .3s cubic-bezier(.25, .25, .4, 1.6), border-width .3s, border-color .3s;
 }
-.loading.elastic.progress-button button
-{
-    -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, 0, .75, .75), border-width .3s, border-color .3s;
-    -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, -.6, .75, .75), border-width .3s, border-color .3s;
-            transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, -.6, .75, .75), border-width .3s, border-color .3s;
+.loading.elastic.progress-button button {
+  -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, 0, .75, .75), border-width .3s, border-color .3s;
+  -webkit-transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, -.6, .75, .75), border-width .3s, border-color .3s;
+  transition: background-color .3s, color .3s, width .3s cubic-bezier(.6, -.6, .75, .75), border-width .3s, border-color .3s;
 }

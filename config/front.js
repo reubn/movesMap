@@ -49,6 +49,15 @@ var movesMap = {
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
+      makeVivusButton: function(chart){
+
+        chart.other.vivusButton = document.getElementById('vivusButton');
+
+        chart.other.vivusButton.addEventListener("click", function() {
+          chart.other.vivus = new Vivus(chart.graph._renderer._container, {type: 'oneByOne', duration: 2000, selfDestroy:true});
+        });
+
+      },
       makeUpdateButton: function(chart) {
         //Init ProgressButton
         new UIProgressButton(document.getElementById('update'), {
@@ -500,7 +509,14 @@ var movesMap = {
         chart.other.dateSlider.rangeObj.to.raw = Math.max.apply(Math, chart.other.dateSlider.rangeObj.timestampArray);
 
         //Draw filters
-        chart.other.drawing = new L.Draw.Polygon(chart.graph).enable();
+        chart.other.drawToggle = document.getElementById('drawToggle');
+
+        chart.other.drawToggle.addEventListener("click", function() {
+          chart.other.drawing = new L.Draw.Polygon(chart.graph).enable();
+        });
+
+        //Display
+        document.body.insertBefore(chart.other.drawToggle, chart.canvas);
 
         chart.graph.on('draw:created', function(e) {
           var thisOne = e.layer;
@@ -515,7 +531,9 @@ var movesMap = {
             }));
             console.log(result);
             return result;
-          }, {holder: thisOne._latlngs});
+          }, {
+            holder: thisOne._latlngs
+          });
           chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
           chart.data.processedPaths.forEach(function(p) {
             chart.graph.removeLayer(p);
@@ -526,7 +544,7 @@ var movesMap = {
 
           chart.graph.addLayer(thisOne);
 
-          thisOne.addEventListener("dblclick",function(){
+          thisOne.addEventListener("dblclick", function() {
             chart.other.dataFilter.remove('_latlngs');
             chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
             chart.data.processedPaths.forEach(function(p) {

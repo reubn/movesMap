@@ -162,6 +162,11 @@ function countDone(single) {
   console.info(colors.blue(intCount + " vs " + (single) ? (1) : (chunks.length)));
   if ((single === false && intCount === chunks.length) || (single === true)) {
     console.info(colors.blue("0 chunk loop should be done."));
+    toReturn.data.chart.paths.sort(function(a, b) {
+      if (moment(a.startTime,"YYYYMMDDThhmmss+ZZ").valueOf() < moment(b.startTime,"YYYYMMDDThhmmss+ZZ").valueOf()) return -1;
+      if (moment(a.startTime,"YYYYMMDDThhmmss+ZZ").valueOf() > moment(b.startTime,"YYYYMMDDThhmmss+ZZ").valueOf()) return 1;
+      return 0;
+    });
     process.send(toReturn);
     console.log(colors.green('END! File Sent to Parent'));
     console.timeEnd("fromMapMovement");
