@@ -23,7 +23,7 @@ var movesMap = {
     },
     handlers: {
       dblclick: function() {
-        var elem = this.children[0];
+        var elem = document.body;
         console.log(elem);
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -42,20 +42,39 @@ var movesMap = {
       diffColourSize: false,
       placeSizeMax: 100,
       placeSizeMin: 20,
-      placeIcon: "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='50' height='50' viewBox='0 0 50 50'><circle opacity='0.1' fill='#fff' cx='25' cy='25' r='25'/><circle fill='#fff' cx='25' cy='25' r='2'/></svg>",
+      placeIcon: "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='50' height='50' viewBox='0 0 50 50'><circle fill='#fff' cx='25' cy='25' r='2'/><circle opacity='0.1' fill='#fff' cx='25' cy='25' r='25'/></svg>",
       keyElements: [],
       filters: [],
       drawFilters: []
     },
     beforeConstructionFunctions: {},
     afterConstructionFunctions: {
-      makeVivusButton: function(chart){
+      makeVivusButton: function(chart) {
 
         chart.other.vivusButton = document.getElementById('vivusButton');
 
         chart.other.vivusButton.addEventListener("click", function() {
-          chart.other.vivus = new Vivus(chart.graph._renderer._container, {type: 'oneByOne', duration: 2000, selfDestroy:true});
+          chart.other.vivus = new Vivus(chart.graph._renderer._container, {
+            type: 'oneByOne',
+            duration: 2000,
+            selfDestroy: true
+          });
         });
+
+      },
+      makeCount: function(chart) {
+
+        chart.other.count = document.createElement('section');
+        chart.other.count.id = "pathCount";
+
+        //Display
+        document.body.insertBefore(chart.other.count, chart.canvas);
+
+        chart.other.countUpdate = function(num) {
+          console.log("update count");
+          chart.other.count.innerHTML = num;
+        }
+
 
       },
       makeUpdateButton: function(chart) {
@@ -107,65 +126,6 @@ var movesMap = {
 
         //Display
         document.body.insertBefore(chart.other.infoWindow, chart.canvas);
-      },
-      makePlaces: function(chart) {
-
-        //Init Array
-        chart.data.processedPlaces = [];
-
-        //Loop Over Places Adding to Map
-        for (var i = 0; i < chart.data.chart.places.length; i++) {
-
-          //Ignore Places that Have No Name
-          if (chart.data.chart.places[i].name) {
-
-            //Create Marker
-            chart.data.processedPlaces[i] = new L.marker(new L.latLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon), _.assign(chart.data.chart.places[i], {
-              icon: new L.icon({
-                iconUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
-                iconRetinaUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
-                iconAnchor: [25, 25]
-              })
-            }));
-
-            //InfoWindow on Click
-            chart.data.processedPlaces[i].addEventListener('click', function() {
-              console.log(this);
-              outputToInfoWindow(this, [{
-                name: "Name",
-                func: "options.name"
-              }], document.getElementById("infoWindow"));
-            });
-          }
-        }
-
-        //Make Place Toggle
-        chart.other.placeToggle = document.createElement("section");
-        chart.other.placeToggle.className = "standaloneToggle off";
-        chart.other.placeToggle.on = false;
-        chart.other.placeToggle.id = "placeToggle";
-        chart.other.placeToggle.innerHTML = "Places";
-        chart.other.placeToggle.addEventListener("click", function() {
-          if (this.on === false) {
-            this.classList.remove("off");
-            this.classList.add("on");
-            this.on = true;
-            chart.data.processedPlaces.map(function(a) {
-              chart.graph.addLayer(a);
-            });
-          } else {
-            this.classList.remove("on");
-            this.classList.add("off");
-            this.on = false;
-            chart.data.processedPlaces.map(function(a) {
-              chart.graph.removeLayer(a);
-            });
-          }
-        });
-
-        //Display
-        document.body.insertBefore(chart.other.placeToggle, chart.canvas);
-
       },
       makePolylines: function(chart) {
 
@@ -219,6 +179,7 @@ var movesMap = {
 
 
         //Main
+
         chart.data.processedPaths = [];
         //chart.other.bounds = L.latLngBounds();
         for (var i = 0; i < chart.data.chart.paths.length; i++) {
@@ -300,6 +261,8 @@ var movesMap = {
                   });
                   this.on = true;
                 }
+                //Update count
+                chart.other.countUpdate(chart.data.filtered.length);
               });
 
               chart.other.key.appendChild(chart.other.key.entries[i]);
@@ -362,7 +325,10 @@ var movesMap = {
                 chart.data.filtered.forEach(function(p) {
                   chart.graph.addLayer(p);
                 });
+                //Update count
+                chart.other.countUpdate(chart.data.filtered.length);
               });
+
 
 
               var thisOne = this;
@@ -371,23 +337,10 @@ var movesMap = {
               chart.data.processedPaths.forEach(function(p) {
                 chart.graph.removeLayer(p);
               });
-              // chart.data.filtered.forEach(function(p) {
-              //   chart.graph.addLayer(p);
-              // });
 
-              // google.maps.event.addListener(infoWindow, 'closeclick', function() {
-              //   chart.graph.setZoom(chart.other.holdMapPos.zoom);
-              //   chart.graph.setCenter(chart.other.holdMapPos.center);
-              //   chart.other.dataFilter.remove('options.uuid');
-              //   chart.data.filtered = chart.other.dataFilter.match(chart.data.processedPaths);
-              //   chart.data.processedPaths.forEach(function(p) {
-              //     chart.graph.removeLayer(p);
-              //   });
-              //   chart.data.filtered.forEach(function(p) {
-              //     chart.graph.addLayer(p);
-              //   });
-              // });
 
+              //Update count
+              chart.other.countUpdate(chart.data.filtered.length);
 
             });
           }
@@ -399,6 +352,9 @@ var movesMap = {
         chart.data.filtered.forEach(function(p) {
           chart.graph.addLayer(p);
         });
+
+        //Update count
+        chart.other.countUpdate(chart.data.filtered.length);
 
         //Create Sliders
 
@@ -431,6 +387,9 @@ var movesMap = {
             chart.graph.addLayer(p);
           });
           console.log(chart.other.dataFilter.conditions);
+
+          //Update count
+          chart.other.countUpdate(chart.data.filtered.length);
         };
 
         //From
@@ -556,8 +515,117 @@ var movesMap = {
 
             chart.graph.removeLayer(this);
             delete this;
-          })
+            //Update count
+            chart.other.countUpdate(chart.data.filtered.length);
+          });
+          //Update count
+          chart.other.countUpdate(chart.data.filtered.length);
         });
+
+      },
+      makePlaces: function(chart) {
+
+        //Init Array
+        chart.data.processedPlaces = [];
+
+        //Loop Over Places Adding to Map
+        for (var i = 0; i < chart.data.chart.places.length; i++) {
+
+          //Ignore Places that Have No Name
+          if (chart.data.chart.places[i].name) {
+
+            //Create Marker Group
+            chart.data.processedPlaces[i] = new L.MarkerClusterGroup(_.assign(chart.data.chart.places[i], {
+              spiderfyOnMaxZoom: false,
+              showCoverageOnHover: false,
+              zoomToBoundsOnClick: false,
+              iconCreateFunction: function(cluster) {
+                return new L.icon({
+                  iconUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                  iconRetinaUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                  iconAnchor: [25, 25]
+                });
+              }
+            }));
+            chart.data.processedPlaces[i].visits = [];
+
+            chart.data.processedPlaces[i].on('clusterclick', function() {
+              console.log(this);
+              outputToInfoWindow(this, [{
+                name: "Name",
+                func: "options.name"
+              }, {
+                name: "Times Visited",
+                func: function(o) {
+                  return o.visits.length;
+                }
+              }], document.getElementById("infoWindow"), function() {});
+              this._topClusterLevel.spiderfy();
+            });
+
+            chart.data.processedPlaces[i].on("unspiderfied", function() {
+              console.log(this);
+            })
+
+            for (var v = 0; v < chart.data.chart.places[i].visits.length; v++) {
+              chart.data.processedPlaces[i].visits[v] = new L.Marker(new L.latLng(chart.data.chart.places[i].location.lat, chart.data.chart.places[i].location.lon), _.assign(chart.data.chart.places[i].visits[v], {
+                icon: new L.icon({
+                  iconUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                  iconRetinaUrl: "data:image/svg+xml;charset=utf-8;base64," + window.btoa(chart.other.placeIcon),
+                  iconAnchor: [25, 25]
+                })
+              }));
+
+              chart.data.processedPlaces[i].addLayer(chart.data.processedPlaces[i].visits[v]);
+
+              //InfoWindow on Click
+              chart.data.processedPlaces[i].visits[v].addEventListener('click', function() {
+                console.log(this);
+                outputToInfoWindow(this, [{
+                  name: "Name",
+                  func: "__parent._group.options.name"
+                }, {
+                  name: "Start",
+                  func: function(o) {
+                    return moment(o.options.startTime, "YYYYMMDDThhmmss+ZZ").format("HH:mm, dd Do MMM YY");
+                  }
+                }, {
+                  name: "End",
+                  func: function(o) {
+                    return moment(o.options.endTime, "YYYYMMDDThhmmss+ZZ").format("HH:mm, dd Do MMM YY");
+                  }
+                }], document.getElementById("infoWindow"), function() {});
+              });
+            }
+          }
+        }
+
+        //Make Place Toggle
+        chart.other.placeToggle = document.createElement("section");
+        chart.other.placeToggle.className = "standaloneToggle off";
+        chart.other.placeToggle.on = false;
+        chart.other.placeToggle.id = "placeToggle";
+        chart.other.placeToggle.innerHTML = "Places";
+        chart.other.placeToggle.addEventListener("click", function() {
+          if (this.on === false) {
+            this.classList.remove("off");
+            this.classList.add("on");
+            this.on = true;
+            chart.data.processedPlaces.map(function(a) {
+              chart.graph.addLayer(a);
+            });
+          } else {
+            this.classList.remove("on");
+            this.classList.add("off");
+            this.on = false;
+            chart.data.processedPlaces.map(function(a) {
+              chart.graph.removeLayer(a);
+            });
+          }
+        });
+
+        //Display
+        document.body.insertBefore(chart.other.placeToggle, chart.canvas);
 
       }
     }

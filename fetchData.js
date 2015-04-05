@@ -108,50 +108,75 @@ function processData(from, to, index, callback, single, retry) {
       //console.info(colors.blue(body));
       if (data && body[0]) {
         //console.info(colors.blue("data exists"));
-        data.forEach(function(day) {
-          if (day.segments) {
-            //console.info(colors.blue("day.segments exists"));
-            day.segments.forEach(function(segment) {
-              if (segment) {
-                //console.info(colors.blue("segment exists"));
-                if (segment.type == "move") {
-                  if (segment.activities) {
-                    //console.info(colors.blue("segment.activities exists"));
-                    segment.activities.forEach(function(activity) {
-                      //Reached Activity: Individual PolylineThing
-                      activity.uuid = uuid.v1();
-                      delete activity.manual;
-                      activity.points = activity.trackPoints;
-                      delete activity.trackPoints;
-                      activity.type = activity.activity;
-                      delete activity.activity;
-                      activity.strokeColor = "#" + (config.moves.activityColours[activity.type] || "FF0000");
-                      toReturn.data.chart.paths.push(activity);
-                      //console.log(colors.green("Pushed Activity. Paths Array Length is now: " + paths.length));
+        if (Object.prototype.toString.call(data) === '[object Array]') {
+          data.forEach(function(day) {
+            if (day.segments) {
+              //console.info(colors.blue("day.segments exists"));
+              day.segments.forEach(function(segment) {
+                if (segment) {
+                  //console.info(colors.blue("segment exists"));
+                  if (segment.type == "move") {
+                    if (segment.activities) {
+                      //console.info(colors.blue("segment.activities exists"));
+                      segment.activities.forEach(function(activity) {
+                        //Reached Activity: Individual PolylineThing
+                        activity.uuid = uuid.v1();
+                        delete activity.manual;
+                        activity.points = activity.trackPoints;
+                        delete activity.trackPoints;
+                        activity.type = activity.activity;
+                        delete activity.activity;
+                        activity.strokeColor = "#" + (config.moves.activityColours[activity.type] || "FF0000");
+                        toReturn.data.chart.paths.push(activity);
+                        //console.log(colors.green("Pushed Activity. Paths Array Length is now: " + paths.length));
+                      });
+                    }
+                  } else if (segment.type == "place" && segment.place.name) {
+                    segment.search = toReturn.data.chart.places.filter(function(p) {
+                      return (p.id === segment.place.id || (p.name === segment.place.name));
                     });
-                  }
-                } else if (segment.type == "place" && segment.place.name && toReturn.data.chart.places.filter(function(p) {
-                    return (p.id === segment.place.id || (p.name === segment.place.name));
-                  }).length === 0) {
-                  // segment.place.startTime = segment.startTime;
-                  // segment.place.endTime = segment.endTime;
-                  // segment.place.activities = segment.activities;
-                  toReturn.data.chart.places.push(segment.place);
-                }
-                //console.info(colors.blue("3 segment.activities loop should be done."));
-              }
+                    //console.log(search);
+                    if (segment.search.length === 0) {
+                      //New Place
+                      segment.place.visits = [{
+                        startTime: segment.startTime,
+                        endTime: segment.endTime
+                      }];
+                      toReturn.data.chart.places.push(segment.place);
+                    } else {
+                      //Duplicate Place
+                      segment.search[0].visits.push({
+                        startTime: segment.startTime,
+                        endTime: segment.endTime
+                      });
+                    }
+                    // segment.place.startTime = segment.startTime;
+                    // segment.place.endTime = segment.endTime;
+                    // segment.place.activities = segment.activities;
 
-            });
-          }
-          //console.info(colors.blue("2 day.segments loop should be done."));
-        });
+                  }
+                  //console.info(colors.blue("3 segment.activities loop should be done."));
+                }
+
+              });
+            }
+            //console.info(colors.blue("2 day.segments loop should be done."));
+          });
+        }
         //Should be done now
-        console.info(colors.blue("1 data loop should be done."));
+        //console.info(colors.blue("1 data loop should be done."));
+        console.info(colors.blue(JSON.stringify({
+          from: from,
+          to: to
+        }) + "  loop of responce should be done."));
         callback(single);
       }
     });
   } else {
-    console.log(colors.yellow("Retry Limit Reached for: " + from + " to " + to));
+    console.log(colors.yellow("Retry Limit Reached for " + JSON.stringify({
+      from: from,
+      to: to
+    })));
   }
 }
 
@@ -159,12 +184,12 @@ var intCount = 0;
 
 function countDone(single) {
   intCount++;
-  console.info(colors.blue(intCount + " vs " + (single) ? (1) : (chunks.length)));
+  console.info(colors.blue(intCount + " vs " + ((single) ? (1) : (chunks.length))));
   if ((single === false && intCount === chunks.length) || (single === true)) {
     console.info(colors.blue("0 chunk loop should be done."));
     toReturn.data.chart.paths.sort(function(a, b) {
-      if (moment(a.startTime,"YYYYMMDDThhmmss+ZZ").valueOf() < moment(b.startTime,"YYYYMMDDThhmmss+ZZ").valueOf()) return -1;
-      if (moment(a.startTime,"YYYYMMDDThhmmss+ZZ").valueOf() > moment(b.startTime,"YYYYMMDDThhmmss+ZZ").valueOf()) return 1;
+      if (moment(a.startTime, "YYYYMMDDThhmmss+ZZ").valueOf() < moment(b.startTime, "YYYYMMDDThhmmss+ZZ").valueOf()) return -1;
+      if (moment(a.startTime, "YYYYMMDDThhmmss+ZZ").valueOf() > moment(b.startTime, "YYYYMMDDThhmmss+ZZ").valueOf()) return 1;
       return 0;
     });
     process.send(toReturn);

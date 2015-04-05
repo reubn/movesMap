@@ -105,7 +105,6 @@ html, body {
   top: 50%!important;
   overflow-y: scroll;
   width: 150px;
-
   max-height: 480px;
   -webkit-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
@@ -324,47 +323,60 @@ html, body {
   opacity: 1;
   color: #e6413d;
 }
-
 #drawToggle {
-    position: absolute;
-    z-index: 1000;
-    bottom: 1rem;
-    left: 1rem;
-    height: 3rem;
-    width: 3rem;
-    border-radius: 5px;
-    border: 2px #fff solid;
-    padding:0.5rem;
-    margin:0;
-    fill:#fff;
-    -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
-    transition: all .25s cubic-bezier(.785, .135, .15, .86);
- }
+  position: absolute;
+  z-index: 1000;
+  bottom: 1rem;
+  left: 1rem;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 5px;
+  border: 2px #fff solid;
+  padding: 0.5rem;
+  margin: 0;
+  fill: #fff;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+}
 #drawToggle:hover {
-  fill:#00c5ff;
-  border-color:#00c5ff
+  fill: #00c5ff;
+  border-color: #00c5ff
 }
-
 #vivusButton {
-    position: absolute;
-    z-index: 1000;
-    bottom: 1rem;
-    right: 1rem;
-    height: 3rem;
-    width: 3rem;
-    border-radius: 5px;
-    border: 2px #fff solid;
-    padding:0.5rem;
-    margin:0;
-    fill:#fff;
-    -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
-    transition: all .25s cubic-bezier(.785, .135, .15, .86);
- }
- #vivusButton:hover {
-  fill:rgb(32, 239, 90);
-  border-color:rgb(32, 239, 90)
+  position: absolute;
+  z-index: 1000;
+  bottom: 1rem;
+  right: 1rem;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 5px;
+  border: 2px #fff solid;
+  padding: 0.5rem;
+  margin: 0;
+  fill: #fff;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+}
+#vivusButton:hover {
+  fill: rgb(32, 239, 90);
+  border-color: rgb(32, 239, 90)
 }
 
+#pathCount {
+  position: absolute;
+  z-index: 1000;
+  top: 1rem;
+  right: 1rem;
+  height: 3rem;
+  border-radius: 5px;
+  border: 2px #fff solid;
+  padding: 0.5rem;
+  color: #fff;
+  font-size: 3rem;
+  -webkit-transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  transition: all .25s cubic-bezier(.785, .135, .15, .86);
+  line-height: 3rem;
+}
 /* Button container */
 
 .progress-button {
