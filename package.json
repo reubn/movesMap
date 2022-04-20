@@ -20,7 +20,7 @@
     "quantified",
     "self"
   ],
-  "author": "Reuben Eggar",
+  "author": "Reuben",
   "license": "MIT",
   "dependencies": {
     "compression": "^1.4.1",
